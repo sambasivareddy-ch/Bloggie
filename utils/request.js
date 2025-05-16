@@ -1,6 +1,4 @@
-const API_KEY = "AIzaSyBhvoiTSRKmpJc1XPYNm_weTepopJwJjV0";
-const COLLECTION_URL =
-    "https://firestore.googleapis.com/v1/projects/journal-41fed/databases/(default)/documents/blogs";
+import { API_KEY } from '@env';
 
 const authPostRequestHandler = async (method, data) => {
     try {
