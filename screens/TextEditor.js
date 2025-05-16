@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useLayoutEffect, useContext } from "react";
 import {
     TextInput,
     Text,
@@ -9,6 +9,7 @@ import {
     Keyboard,
     FlatList,
     TouchableOpacity,
+    Alert,
 } from "react-native";
 
 import {
@@ -17,12 +18,17 @@ import {
     actions,
 } from "react-native-pell-rich-editor";
 
+import { AuthContext } from "../context/authContext";
+import { postBlogToFirebase, updateBlogToFirebase } from "../utils/request";
 import AppButton from "../components/AppButton";
 
-const TextEditor = () => {
+const TextEditor = ({ route, navigation }) => {
+    const params = route.params;
+    const { authState } = useContext(AuthContext);
+
     const richText = useRef();
-    const [title, setTitle] = useState("");
-    const [tags, setTags] = useState([]);
+    const [title, setTitle] = useState(params ? params.blogTitle : "");
+    const [tags, setTags] = useState(params ? params.blogTags : []);
     const [tagInput, setTagInput] = useState("");
 
     const addTag = () => {
@@ -34,6 +40,57 @@ const TextEditor = () => {
 
     const removeTag = (tagToRemove) => {
         setTags(tags.filter((tag) => tag !== tagToRemove));
+    };
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            title: params ? "Edit Blog" : "New Blog",
+        });
+    }, [params]);
+
+    const submitHandler = async () => {
+        if (!richText || !title) {
+            Alert.alert("Inputs", "Please add title & content");
+        }
+
+        const content = await richText.current.getContentHtml();
+
+        if (!params) {
+            await postBlogToFirebase(
+                {
+                    userId: authState.uid,
+                    title: title,
+                    tags: tags,
+                    date: Date.now(),
+                    content: content,
+                },
+                authState.authToken
+            )
+                .then(() => {
+                    navigation.navigate('Main')
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        } else {
+            await updateBlogToFirebase(
+                {
+                    userId: authState.uid,
+                    title: title,
+                    tags: tags,
+                    date: Date.now(),
+                    content: content,
+                    id: params.docId,
+                },
+                authState.authToken
+            )
+                .then(() => {
+                    navigation.navigate('Main')
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
     };
 
     return (
@@ -89,7 +146,7 @@ const TextEditor = () => {
                             actions.code,
                             actions.blockquote,
                         ]}
-                        iconTint="#fff"
+                        iconTint="#000"
                         selectedIconTint="#6200EE"
                         selectedButtonStyle={{ backgroundColor: "#f2f2f2" }}
                         style={styles.richToolbar}
@@ -101,11 +158,12 @@ const TextEditor = () => {
                         placeholder="Blog content here"
                         style={styles.richEditor}
                         initialHeight={400}
+                        initialContentHTML={params?.content || ""}
                     />
                     <AppButton
-                        text={"Save"}
+                        text={params ? "Update" : "Save"}
                         withBorder={true}
-                        onPress={() => {}}
+                        onPress={submitHandler}
                     />
                 </View>
             </TouchableWithoutFeedback>
@@ -124,7 +182,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 10,
         paddingVertical: 4,
-        fontFamily: "Poppins",
+        fontFamily: "RalewayBold",
     },
     subheading: {
         fontSize: 12,
@@ -133,33 +191,34 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins",
     },
     richEditor: {
-        borderColor: "#ddd",
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 8,
+        paddingVertical: 8,
         minHeight: 200,
         fontFamily: "Poppins",
+        borderBottomColor: "#e1e1e1",
+        borderBottomWidth: 2,
+        borderTopColor: "#e1e1e1",
+        // borderTopWidth: 2,
     },
     richToolbar: {
         marginTop: 12,
-        borderTopWidth: 1,
-        borderColor: "#ddd",
+        // borderTopWidth: 1,
+        // borderColor: "#ddd",
         fontFamily: "Poppins",
-        backgroundColor: "#000",
+        backgroundColor: "#fff",
     },
     tagContainer: {
         flexDirection: "column",
-        marginBottom: 12,
+        marginVertical: 12,
     },
     tagInput: {
         borderBottomWidth: 1,
         borderColor: "#ccc",
-        paddingVertical: 10,
+        paddingVertical: 20,
         fontSize: 14,
         marginTop: 4,
     },
     tag: {
-        backgroundColor: "#e0e0e0",
+        backgroundColor: "#000",
         borderRadius: 20,
         paddingVertical: 4,
         paddingHorizontal: 10,
@@ -167,7 +226,7 @@ const styles = StyleSheet.create({
     },
     tagText: {
         fontSize: 12,
-        color: "#333",
+        color: "#fff",
     },
 });
 

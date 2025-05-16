@@ -2,12 +2,10 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 import Tag from "./Tag";
 
-const FeedCard = ({ title, preview, date, tags, onPress }) => {
+const FeedCard = ({ id, title, date, tags, onPress }) => {
     const pressHandler = () => {
-        onPress();
+        onPress(id);
     };
-
-    console.log(title)
 
     return (
         <Pressable
@@ -21,8 +19,7 @@ const FeedCard = ({ title, preview, date, tags, onPress }) => {
         >
             <View style={styles.feedCard}>
                 <Text style={styles.feedTitle}>{title}</Text>
-                <Text style={styles.feedText}>{preview}</Text>
-                <Text style={styles.feedText}>Date: {new Date().toLocaleString()}</Text>
+                <Text style={styles.feedText}>Date: {(new Date(date)).toString()}</Text>
                 <View style={styles.tags}>
                     {tags && tags.map((tag) => {
                         return <Tag text={tag} key={Math.random()}/>
@@ -40,18 +37,29 @@ const styles = StyleSheet.create({
         width: '100%',
         padding: 20,
         boxSizing: 'border-box',
+        backgroundColor: '#fff',
         borderColor: '#000',
-        borderWidth: 1,
-        borderRadius: 5,
         marginVertical: 5,
         gap: 10,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+
+        elevation: 1,
     },
     feedTitle: {
-        fontFamily: 'Poppins',
+        fontFamily: 'RalewayBold',
         fontSize: 18,
+        color: '#4703d1'
     },
     feedText: {
-        fontFamily: 'Poppins'
+        fontFamily: 'Poppins',
+        color: '#45444c'
     },
     tags: {
         flexDirection: 'row',

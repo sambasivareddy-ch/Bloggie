@@ -25,7 +25,7 @@ const AppButton = ({ text, onPress, withBorder }) => {
                 <Text
                     style={[
                         styles.buttonText,
-                        !withBorder && { color: "#000", textAlign: "right", fontSize: 18 },
+                        !withBorder && { color: "#4703d1", textAlign: "right", fontSize: 18 },
                     ]}
                 >
                     {text}
@@ -40,7 +40,6 @@ export default AppButton;
 const styles = StyleSheet.create({
     buttonContainer: {
         width: "100%",
-        // maxWidth: "80%",
         padding: 15,
         backgroundColor: "#000",
         borderRadius: 5,
