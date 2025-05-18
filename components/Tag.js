@@ -17,10 +17,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
     },
     tagText: {
         color: '#fff',
         fontSize: 12,
+        textTransform: 'capitalize'
     }
 })

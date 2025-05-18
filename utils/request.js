@@ -1,4 +1,5 @@
-import { API_KEY } from '@env';
+// import { API_KEY } from '@env';
+const API_KEY = 'AIzaSyBhvoiTSRKmpJc1XPYNm_weTepopJwJjV0'
 
 const authPostRequestHandler = async (method, data) => {
     try {
@@ -14,7 +15,7 @@ const authPostRequestHandler = async (method, data) => {
         );
 
         if (!response.ok) {
-            console.error("error occurred while sending the request");
+            throw new Error("error occurred while sending the request");
         }
 
         const result = await response.json();
@@ -25,7 +26,7 @@ const authPostRequestHandler = async (method, data) => {
             uid: result.localId,
         };
     } catch (err) {
-        return err;
+        throw new Error(err.message);
     }
 };
 
@@ -60,6 +61,7 @@ export const postBlogToFirebase = async (document, access_token) => {
 
         if (!response.ok) {
             console.error("error occurred during posting to firebase");
+            return
         }
 
         const data = await response.json();
@@ -136,8 +138,6 @@ export const getBlogsFromFirebase = async (userId, access_token) => {
         }
 
         const data = await response.json();
-
-        console.log(data)
 
         return data;
     } catch (err) {

@@ -17,13 +17,14 @@ import {
     RichToolbar,
     actions,
 } from "react-native-pell-rich-editor";
+import QuillEditor, { QuillToolbar } from 'react-native-cn-quill';
 
 import { AuthContext } from "../context/authContext";
 import { postBlogToFirebase, updateBlogToFirebase } from "../utils/request";
 import AppButton from "../components/AppButton";
 
-const TextEditor = ({ route, navigation }) => {
-    const params = route.params;
+const TextEditor = (props) => {
+    const params = props.route.params;
     const { authState } = useContext(AuthContext);
 
     const richText = useRef();
@@ -43,7 +44,7 @@ const TextEditor = ({ route, navigation }) => {
     };
 
     useLayoutEffect(() => {
-        navigation.setOptions({
+        props.navigation.setOptions({
             title: params ? "Edit Blog" : "New Blog",
         });
     }, [params]);
@@ -67,7 +68,7 @@ const TextEditor = ({ route, navigation }) => {
                 authState.authToken
             )
                 .then(() => {
-                    navigation.navigate('Main')
+                    props.navigation.navigate('Main')
                 })
                 .catch((err) => {
                     console.error(err);
@@ -85,7 +86,7 @@ const TextEditor = ({ route, navigation }) => {
                 authState.authToken
             )
                 .then(() => {
-                    navigation.navigate('Main')
+                    props.navigation.navigate('Main')
                 })
                 .catch((err) => {
                     console.error(err);
@@ -158,8 +159,10 @@ const TextEditor = ({ route, navigation }) => {
                         placeholder="Blog content here"
                         style={styles.richEditor}
                         initialHeight={400}
-                        initialContentHTML={params?.content || ""}
+                        initialContentHTML={[params?.content || '']}
                     />
+
+
                     <AppButton
                         text={params ? "Update" : "Save"}
                         withBorder={true}
@@ -197,6 +200,7 @@ const styles = StyleSheet.create({
         borderBottomColor: "#e1e1e1",
         borderBottomWidth: 2,
         borderTopColor: "#e1e1e1",
+        height: 400
         // borderTopWidth: 2,
     },
     richToolbar: {

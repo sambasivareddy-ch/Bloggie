@@ -7,7 +7,7 @@ import {
     Keyboard,
     Alert,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
@@ -19,6 +19,13 @@ const CreateAccount = ({ navigation }) => {
     const [userPassword, setUserPassword] = useState("");
     const [userConfirmedPassword, setUserConfirmedPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setHasError(false);
+        }, 3000)
+    }, [hasError])
 
     const loginPageHandler = () => {
         navigation.navigate("Login");
@@ -27,21 +34,24 @@ const CreateAccount = ({ navigation }) => {
     const formSubmitHandler = async () => {
         if (!userEmail || !userPassword || !userConfirmedPassword) {
             Alert.alert("Invalid Input", "Please enter all the data");
+            return
         }
 
         if (userPassword !== userConfirmedPassword) {
             Alert.alert("Password Mismatch", "Please check the passwords");
+            return
         }
 
         try {
             setIsLoading(true);
             await createAccount(userEmail, userPassword);
         } catch (err) {
-            console.error(err);
+            setHasError(true);
             setIsLoading(false);
         }
 
-        navigation.navigate('Login')
+        if (hasError)
+            navigation.navigate('Login')
     };
 
     let content = <Loading text={"Creating the account..."} />;
@@ -62,6 +72,7 @@ const CreateAccount = ({ navigation }) => {
                                 keyboardType={"email-address"}
                                 isPassword={false}
                                 ariaLabel={"EmailAddress"}
+                                value={userEmail}
                                 changeHandler={setUserEmail}
                             />
                             <InputField
@@ -69,6 +80,7 @@ const CreateAccount = ({ navigation }) => {
                                 keyboardType={"default"}
                                 isPassword={true}
                                 ariaLabel={"Password"}
+                                value={userPassword}
                                 changeHandler={setUserPassword}
                             />
                             <InputField
@@ -76,6 +88,7 @@ const CreateAccount = ({ navigation }) => {
                                 keyboardType={"default"}
                                 isPassword={true}
                                 ariaLabel={"ConfirmPassword"}
+                                value={userConfirmedPassword}
                                 changeHandler={setUserConfirmedPassword}
                             />
                             <AppButton
@@ -83,6 +96,7 @@ const CreateAccount = ({ navigation }) => {
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
+                            {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
                             <AppButton
                                 text={"Click to Login"}
                                 onPress={loginPageHandler}
@@ -119,4 +133,9 @@ const styles = StyleSheet.create({
         fontFamily: "Raleway",
         fontSize: 32,
     },
+    errorMessage: {
+        color: "#f44336",
+        fontSize: 18,
+        fontFamily: 'Poppins'
+    }
 });

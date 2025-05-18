@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { useState, useLayoutEffect, useEffect, useContext } from "react";
 import RenderHTML from "react-native-render-html";
 
@@ -13,6 +13,7 @@ const Blog = ({ route, navigation }) => {
     const [blog, setBlog] = useState();
     const [isLoading, setIsLoading] = useState(false);
     const { id } = route.params;
+    const { width }= useWindowDimensions();
 
     const deleteHandler = async () => {
         await deleteBlogFromFirebase(blog.userId, blog.id, authState.authToken)
@@ -95,7 +96,7 @@ const Blog = ({ route, navigation }) => {
                                 return <Tag text={tag} key={Math.random()} />;
                             })}
                     </View>
-                    <RenderHTML source={{ html: blog.content }} />
+                    <RenderHTML source={{ html: blog.content }} contentWidth={ width } />
                 </View>
             </View>
         );

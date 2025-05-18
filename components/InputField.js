@@ -6,6 +6,7 @@ const InputField = ({
     isPassword,
     ariaLabel,
     changeHandler,
+    value
 }) => {
     const inputChangeHandler = (enteredInput) => {
         changeHandler(enteredInput);
@@ -20,6 +21,7 @@ const InputField = ({
             autoCorrect={false}
             aria-label={ariaLabel}
             onChangeText={inputChangeHandler}
+            value={value}
             style={styles.input}
         />
     );

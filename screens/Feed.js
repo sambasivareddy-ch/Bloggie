@@ -91,7 +91,7 @@ const Feed = ({ route, navigation }) => {
                     {data.length > 0 && (
                         <View style={styles.feeds}>
                             <FlatList
-                                data={data}
+                                data={data.sort((a, b) => b.date - a.date)}
                                 keyExtractor={(item) => item.id}
                                 renderItem={({ item }) => (
                                     <FeedCard
@@ -130,8 +130,6 @@ const styles = StyleSheet.create({
     },
     feedHeader: {
         marginBottom: 20,
-        borderBottomColor: "#000",
-        borderBottomWidth: 1,
         paddingBottom: 15,
     },
     title: {

@@ -7,7 +7,7 @@ import {
     Keyboard,
     Alert,
 } from "react-native";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
@@ -19,8 +19,15 @@ const Login = ({ route, navigation }) => {
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
 
     const { login } = useContext(AuthContext);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setHasError(false);
+        }, 3000)
+    }, [hasError])
 
     const createAccountChangeHandler = () => {
         navigation.navigate("SignUp");
@@ -35,9 +42,12 @@ const Login = ({ route, navigation }) => {
         try {
             setIsLoading(true);
             const info = await loginIntoAccount(userEmail, userPassword);
-            login(info.token, info.email, info.uid)
+
+            if (info && info?.token && info?.email && info?.uid) {
+                login(info.token, info.email, info.uid)
+            }
         } catch (err) {
-            console.error(err);
+            setHasError(true);
             setIsLoading(false);
         }
     };
@@ -60,6 +70,7 @@ const Login = ({ route, navigation }) => {
                                 keyboardType={"email-address"}
                                 isPassword={false}
                                 ariaLabel={"EmailAddress"}
+                                value={userEmail}
                                 changeHandler={setUserEmail}
                             />
                             <InputField
@@ -67,6 +78,7 @@ const Login = ({ route, navigation }) => {
                                 keyboardType={"default"}
                                 isPassword={true}
                                 ariaLabel={"Password"}
+                                value={userPassword}
                                 changeHandler={setUserPassword}
                             />
                             <AppButton
@@ -74,6 +86,7 @@ const Login = ({ route, navigation }) => {
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
+                            {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
                             <AppButton
                                 text={"Click to Create"}
                                 onPress={createAccountChangeHandler}
@@ -86,7 +99,9 @@ const Login = ({ route, navigation }) => {
         );
     }
 
-    return content;
+    return <View style={styles.view}>
+        {content}
+    </View>;
 };
 
 export default Login;
@@ -110,4 +125,9 @@ const styles = StyleSheet.create({
         fontFamily: "Raleway",
         fontSize: 32,
     },
+    errorMessage: {
+        color: "#f44336",
+        fontSize: 18,
+        fontFamily: 'Poppins'
+    }
 });
