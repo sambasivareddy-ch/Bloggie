@@ -1,10 +1,7 @@
-// import { API_KEY } from '@env';
-const API_KEY = 'AIzaSyBhvoiTSRKmpJc1XPYNm_weTepopJwJjV0'
-
 const authPostRequestHandler = async (method, data) => {
     try {
         const response = await fetch(
-            `https://identitytoolkit.googleapis.com/v1/accounts:${method}?key=${API_KEY}`,
+            `https://identitytoolkit.googleapis.com/v1/accounts:${method}?key=${process.env.EXPO_PUBLIC_API_KEY}`,
             {
                 method: "POST",
                 headers: {
@@ -49,7 +46,7 @@ export const loginIntoAccount = async (email, password) => {
 export const postBlogToFirebase = async (document, access_token) => {
     try {
         const response = await fetch(
-            `https://journal-41fed-default-rtdb.firebaseio.com/users/${document.userId}.json?auth=${access_token}`,
+            `https://${process.env.EXPO_PUBLIC_PROJECT_ID}-default-rtdb.firebaseio.com/users/${document.userId}.json?auth=${access_token}`,
             {
                 method: "POST",
                 headers: {
@@ -75,7 +72,7 @@ export const postBlogToFirebase = async (document, access_token) => {
 export const updateBlogToFirebase = async (document, access_token) => {
     try {
         const response = await fetch(
-            `https://journal-41fed-default-rtdb.firebaseio.com/users/${document.userId}/${document.id}.json?auth=${access_token}`,
+            `https://${process.env.EXPO_PUBLIC_PROJECT_ID}-default-rtdb.firebaseio.com/users/${document.userId}/${document.id}.json?auth=${access_token}`,
             {
                 method: "PUT",
                 headers: {
@@ -100,7 +97,7 @@ export const updateBlogToFirebase = async (document, access_token) => {
 export const deleteBlogFromFirebase = async (userId, id, access_token) => {
     try {
         const response = await fetch(
-            `https://journal-41fed-default-rtdb.firebaseio.com/users/${userId}/${id}.json?auth=${access_token}`,
+            `https://${process.env.EXPO_PUBLIC_PROJECT_ID}-default-rtdb.firebaseio.com/users/${userId}/${id}.json?auth=${access_token}`,
             {
                 method: "DELETE",
                 headers: {
@@ -124,7 +121,7 @@ export const deleteBlogFromFirebase = async (userId, id, access_token) => {
 export const getBlogsFromFirebase = async (userId, access_token) => {
     try {
         const response = await fetch(
-            `https://journal-41fed-default-rtdb.firebaseio.com/users/${userId}.json?auth=${access_token}`,
+            `https://${process.env.EXPO_PUBLIC_PROJECT_ID}-default-rtdb.firebaseio.com/users/${userId}.json?auth=${access_token}`,
             {
                 method: "GET",
                 headers: {
