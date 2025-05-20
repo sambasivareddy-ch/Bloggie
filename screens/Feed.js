@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, FlatList, Button } from "react-native";
+import { View, Text, StyleSheet, FlatList, Button, Pressable } from "react-native";
 import { useState, useLayoutEffect, useContext, useEffect } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { AuthContext } from "../context/authContext";
 import IconButton from "../components/IconButton";
@@ -14,6 +15,7 @@ const Feed = ({ route, navigation }) => {
     const [userBlogs, setUserBlogs] = useState([]);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedTags, setSelectedTags] = useState([]);
 
     useEffect(() => {
         const fetchUserPost = async () => {
@@ -29,6 +31,7 @@ const Feed = ({ route, navigation }) => {
                 })): [];
                 setUserBlogs(dataArray);
                 setData(dataArray);
+                setSelectedTags([])
             } catch (err) {
                 console.error(err);
             }
@@ -54,17 +57,36 @@ const Feed = ({ route, navigation }) => {
         navigation.navigate("Blog", { id });
     };
 
+    const tagPressHandler = (tag) => {
+        if (!selectedTags.includes(tag))
+            setSelectedTags([tag, ...selectedTags])
+    }
+
+    useEffect(() => {
+        if (selectedTags.length) {
+            const filteredBlogs = userBlogs.filter((blog) => {
+                const tagsLength = selectedTags.length;
+                for (let i = 0; i < tagsLength; i++) {
+                    if (blog.tags.includes(selectedTags[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            setData(filteredBlogs);
+        } else {
+            setData(userBlogs);
+        }
+    }, [selectedTags])
+
     const searchHandler = (searchText) => {
         if (searchText.trim()) {
             const lowerSearch = searchText.toLowerCase();
-            const filteredBlogs = data.filter((blog) => {
-                const tagMatch = blog.tags.some((tag) =>
-                    tag.toLowerCase().includes(lowerSearch)
-                );
+            const filteredBlogs = userBlogs.filter((blog) => {
                 const titleMatch = blog.title
                     .toLowerCase()
                     .includes(lowerSearch);
-                return tagMatch || titleMatch;
+                return titleMatch;
             });
             setData(filteredBlogs);
         } else {
@@ -79,13 +101,25 @@ const Feed = ({ route, navigation }) => {
             <View style={styles.feedContainer}>
                 <View style={styles.feedHeader}>
                     <InputField
-                        placeholder={"Search with Tag or Title"}
+                        placeholder={"Search with Title"}
                         isPassword={false}
                         keyboardType={"default"}
                         ariaLabel={"FeedSearch"}
                         changeHandler={searchHandler}
                     />
                 </View>
+                {selectedTags.length > 0 && <View style={styles.selectedTagsWrapper}>
+                    {selectedTags.map((tag) => {
+                        return <Pressable key={Math.random()} onPress={() => {
+                            setSelectedTags(selectedTags.filter((select) => select !== tag))
+                        }}>
+                            <View style={styles.selected}>
+                                <Text style={styles.tagName}>{tag}</Text>
+                                <Ionicons name="close-outline" size={16} color={"#4703d1"}/>
+                            </View>
+                        </Pressable>
+                    })}
+                </View>}
                 <View>
                     <Text style={styles.title}>Your Blogs</Text>
                     {data.length > 0 && (
@@ -101,6 +135,7 @@ const Feed = ({ route, navigation }) => {
                                         tags={item.tags}
                                         date={item.date}
                                         onPress={openBlogPostHandler}
+                                        tagPressHandler={tagPressHandler}
                                     />
                                 )}
                             />
@@ -109,6 +144,11 @@ const Feed = ({ route, navigation }) => {
                     {userBlogs.length === 0 && (
                         <Text style={styles.noBlogsText}>
                             You don't have any blogs
+                        </Text>
+                    )}
+                    {data.length === 0 && (
+                        <Text style={styles.noBlogsText}>
+                            No matching blogs...
                         </Text>
                     )}
                 </View>
@@ -129,7 +169,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
     },
     feedHeader: {
-        marginBottom: 20,
+        marginBottom: 10,
         paddingBottom: 15,
     },
     title: {
@@ -144,4 +184,22 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: "Poppins",
     },
+    selectedTagsWrapper: {
+        flexDirection: 'row',
+        gap: 10,
+        marginBottom: 20,
+    },
+    selected: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 5,
+        borderWidth: 1,
+        borderColor: '#4703d1',
+        padding: 5,
+    },
+    tagName: {
+        fontSize: 12,
+        color: '#4703d1'
+    }
 });

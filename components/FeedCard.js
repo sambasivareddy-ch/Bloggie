@@ -2,31 +2,33 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 import Tag from "./Tag";
 
-const FeedCard = ({ id, title, date, tags, onPress }) => {
+const FeedCard = ({ id, title, date, tags, onPress, tagPressHandler }) => {
     const pressHandler = () => {
         onPress(id);
     };
 
     return (
-        <Pressable
-            android_ripple={true}
-            onPress={pressHandler}
-            style={({ pressed }) =>
-                pressed && {
-                    opacity: 0.7,
-                }
-            }
-        >
+        <View>
             <View style={styles.feedCard}>
-                <Text style={styles.feedTitle}>{title}</Text>
+                <Pressable
+                    android_ripple={true}
+                    onPress={pressHandler}
+                    style={({ pressed }) =>
+                        pressed && {
+                            opacity: 0.7,
+                        }
+                    }
+                >
+                    <Text style={styles.feedTitle}>{title}</Text>
+                </Pressable>
                 <Text style={styles.feedText}>Date: {(new Date(date)).toString()}</Text>
                 <View style={styles.tags}>
                     {tags && tags.map((tag) => {
-                        return <Tag text={tag} key={Math.random()}/>
+                        return <Tag text={tag} key={Math.random()} onPress={tagPressHandler}/>
                     })}
                 </View>
             </View>
-        </Pressable>
+        </View>
     );
 };
 
@@ -55,7 +57,9 @@ const styles = StyleSheet.create({
     feedTitle: {
         fontFamily: 'RalewayBold',
         fontSize: 18,
-        color: '#4703d1'
+        color: '#4703d1',
+        textDecorationLine: 'underline',
+        textDecorationColor: '#4703d1'
     },
     feedText: {
         fontFamily: 'Poppins',

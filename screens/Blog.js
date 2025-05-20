@@ -93,7 +93,7 @@ const Blog = ({ route, navigation }) => {
                     <View style={styles.tags}>
                         {blog.tags &&
                             blog.tags.map((tag) => {
-                                return <Tag text={tag} key={Math.random()} />;
+                                return <Tag text={tag} key={Math.random()} onPress={() => {}}/>;
                             })}
                     </View>
                     <RenderHTML source={{ html: blog.content }} contentWidth={ width } />
