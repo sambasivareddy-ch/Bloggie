@@ -7,7 +7,8 @@ export const AuthContext = createContext({
         isLoggedIn: false,
         authToken: '',
         uid: '',
-        email: ''
+        email: '',
+        loggedInTime: 0,
     },
     login: (token, email, uid) => {},
     logout: () => {}
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
         authToken: '',
         email: '',
         uid: '',
+        loggedInTime: -1,
     });
 
     useEffect(() => {
@@ -26,8 +28,12 @@ export const AuthProvider = ({ children }) => {
           try {
             const authInfo = await AsyncStorage.getItem('authInfo');
             const parsedData = JSON.parse(authInfo);
+            const currentTime = Date.now()
             if (parsedData) {
-              login(parsedData.token, parsedData.email, parsedData.uid);
+                if (currentTime - parsedData.loggedInTime <= 60 * 60 * 1000)
+                    login(parsedData.token, parsedData.email, parsedData.uid);
+                else 
+                    logout()
             }
           } catch (e) {
             console.error('Failed to load auth info.', e);
@@ -39,17 +45,25 @@ export const AuthProvider = ({ children }) => {
     
 
     const login = async (token, email, uid) => {
+        const loggedInTime = Date.now();
+
+        setTimeout(() => {
+            logout()
+        }, 60*60*1000)
+
         setAuthState({
             isLoggedIn: true,
             authToken: token,
             email: email,
-            uid: uid
+            uid: uid,
+            loggedInTime: loggedInTime
         })
         try {
             await AsyncStorage.setItem('authInfo', JSON.stringify({
                 token,
                 email,
                 uid,
+                loggedInTime
             }));
         } catch(err) {
             console.error('error occurred loading auth info')
@@ -61,7 +75,8 @@ export const AuthProvider = ({ children }) => {
             isLoggedIn: false,
             authToken: '',
             email: '',
-            uid: ''
+            uid: '',
+            loggedInTime: -1,
         })
         try {
             await AsyncStorage.removeItem('authInfo')
