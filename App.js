@@ -14,6 +14,7 @@ import Login from "./screens/Login";
 import Profile from "./screens/Profile";
 import TextEditor from "./screens/TextEditor";
 import CreateAccount from "./screens/CreateAccount";
+import { ChangeEmail, ChangePassword } from "./screens/ChangeCredential";
 
 import { AuthProvider, AuthContext } from "./context/authContext";
 
@@ -77,6 +78,20 @@ const MainAppNav = () => {
           <StackNavigator.Screen
               name="Editor"
               component={TextEditor}
+          />
+          <StackNavigator.Screen
+              name="ChangePassword"
+              component={ChangePassword}
+              options={{
+                title: 'Change Password'
+              }}
+          />
+          <StackNavigator.Screen
+              name="ChangeEmail"
+              component={ChangeEmail}
+              options={{
+                title: 'Change Email'
+              }}
           />
       </StackNavigator.Navigator>
   );

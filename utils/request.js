@@ -17,6 +17,10 @@ const authPostRequestHandler = async (method, data) => {
 
         const result = await response.json();
 
+        if (method === 'delete') {
+            return true;
+        }
+
         return {
             token: result.idToken,
             email: result.email,
@@ -42,6 +46,28 @@ export const loginIntoAccount = async (email, password) => {
         returnSecureToken: true,
     });
 };
+
+export const changeAccountPassword = async (password, token) => {
+    return authPostRequestHandler("update", {
+        password,
+        idToken: token,
+        returnSecureToken: true,
+    })
+}
+
+export const changeAccountEmail = async (email, token) => {
+    return authPostRequestHandler("update", {
+        email,
+        idToken: token,
+        returnSecureToken: true,
+    })
+}
+
+export const deleteAccount = async (token) => {
+    return authPostRequestHandler("delete", {
+        idToken: token,
+    })
+}
 
 export const postBlogToFirebase = async (document, access_token) => {
     try {
