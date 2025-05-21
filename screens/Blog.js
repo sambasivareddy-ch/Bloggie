@@ -13,12 +13,14 @@ const Blog = ({ route, navigation }) => {
     const [blog, setBlog] = useState();
     const [isLoading, setIsLoading] = useState(false);
     const { id } = route.params;
-    const { width }= useWindowDimensions();
+    const { width } = useWindowDimensions();
 
     const deleteHandler = async () => {
         await deleteBlogFromFirebase(blog.userId, blog.id, authState.authToken)
             .then(() => {
-                navigation.navigate("Main", {loading: 'Deleting the blog...'});
+                navigation.navigate("Main", {
+                    loading: "Deleting the blog...",
+                });
             })
             .catch((err) => {
                 console.error(err);
@@ -93,10 +95,31 @@ const Blog = ({ route, navigation }) => {
                     <View style={styles.tags}>
                         {blog.tags &&
                             blog.tags.map((tag) => {
-                                return <Tag text={tag} key={Math.random()} onPress={() => {}}/>;
+                                return (
+                                    <Tag
+                                        text={tag}
+                                        key={Math.random()}
+                                        onPress={() => {}}
+                                    />
+                                );
                             })}
                     </View>
-                    <RenderHTML source={{ html: blog.content }} contentWidth={ width } />
+                    <RenderHTML
+                        source={{ html: blog.content }}
+                        contentWidth={width}
+                        tagsStyles={{
+                            b: { fontWeight: "bold" },
+                            i: { fontStyle: "italic" },
+                            u: { textDecorationLine: "underline" },
+                            blockquote: {
+                                marginVertical: 10,
+                                padding: 10,
+                                borderLeftWidth: 4,
+                                borderLeftColor: "#ccc",
+                                backgroundColor: "#eee"
+                            },
+                        }}
+                    />
                 </View>
             </View>
         );

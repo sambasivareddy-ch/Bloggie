@@ -97,7 +97,7 @@ const TextEditor = (props) => {
     return (
         <KeyboardAvoidingView behavior={"padding"} style={styles.container}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View>
+                <View style={styles.editorWrapper}>
                     {/* Editable Title Input */}
                     <TextInput
                         style={styles.titleInput}
@@ -142,10 +142,11 @@ const TextEditor = (props) => {
                             actions.setBold,
                             actions.setItalic,
                             actions.setUnderline,
-                            actions.checkboxList,
                             actions.table,
                             actions.code,
                             actions.blockquote,
+                            actions.insertBulletsList,
+                            actions.insertOrderedList,
                         ]}
                         iconTint="#000"
                         selectedIconTint="#6200EE"
@@ -162,11 +163,11 @@ const TextEditor = (props) => {
                         initialContentHTML={[params?.content || '']}
                     />
 
-
                     <AppButton
                         text={params ? "Update" : "Save"}
                         withBorder={true}
                         onPress={submitHandler}
+                        propStyles={styles.submitButton}
                     />
                 </View>
             </TouchableWithoutFeedback>
@@ -180,6 +181,9 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: "#fff",
     },
+    editorWrapper: {
+        flex: 1,
+    },
     titleInput: {
         fontSize: 24,
         fontWeight: "bold",
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
     subheading: {
         fontSize: 12,
         color: "#555",
-        marginBottom: 16,
+        // marginBottom: 16,
         fontFamily: "Poppins",
     },
     richEditor: {
@@ -200,7 +204,7 @@ const styles = StyleSheet.create({
         borderBottomColor: "#e1e1e1",
         borderBottomWidth: 2,
         borderTopColor: "#e1e1e1",
-        height: 400
+        height: 400,
         // borderTopWidth: 2,
     },
     richToolbar: {

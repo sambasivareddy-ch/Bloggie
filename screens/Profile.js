@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
     profileContainer: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#fff'
     },
     profile: {
         justifyContent: 'center',
