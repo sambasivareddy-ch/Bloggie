@@ -1,9 +1,10 @@
 import { StatusBar } from "expo-status-bar";
-import { useContext } from "react";
-import { StyleSheet, View, SafeAreaView } from "react-native";
+import { useContext, useEffect, useState } from "react";
+import { StyleSheet, View, SafeAreaView, Alert } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
+import * as LocalAuthentication from 'expo-local-authentication';
 import * as Font from "expo-font";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -17,6 +18,7 @@ import CreateAccount from "./screens/CreateAccount";
 import { ChangeEmail, ChangePassword, ResetPasswordWithEmail } from "./screens/ChangeCredential";
 
 import { AuthProvider, AuthContext } from "./context/authContext";
+import { BiometricContext, BiometricProvider } from "./context/biometricContext";
 
 const fetchFonts = () => {
     return Font.loadAsync({
@@ -130,6 +132,34 @@ const StackNav = () => {
 
 const AppNavigation = () => {
     const { authState } = useContext(AuthContext);
+    const { enabled } = useContext(BiometricContext);
+
+    const [authenticated, setAuthenticated] = useState(false);
+    useEffect(() => {
+        const authenticate = async () => {
+            const compatible = await LocalAuthentication.hasHardwareAsync();
+            const enrolled = await LocalAuthentication.isEnrolledAsync();
+
+            if (!compatible || !enrolled) {
+                Alert.alert('Biometrics not available', 'Device has no biometrics');
+                return;
+            }
+
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: "Authenticate to access app",
+                fallbackLabel: 'Enter passcode',
+            })
+
+            setAuthenticated(result.success)
+        }
+
+        if (enabled)
+            authenticate();
+    }, [enabled])
+
+    if (enabled && !authenticated) {
+        return null;
+    }
 
     let mainNav = <StackNav />;
     if (authState.isLoggedIn) {
@@ -151,16 +181,16 @@ export default function App() {
     }
 
     return (
-        <AuthProvider>
-            {/* <SafeAreaView style={styles.container}> */}
-            <NavigationContainer>
-                <StatusBar style="dark" />
-                <View style={styles.container}>
-                    <AppNavigation />
-                </View>
-            </NavigationContainer>
-            {/* </SafeAreaView> */}
-        </AuthProvider>
+        <BiometricProvider>
+            <AuthProvider>
+                <NavigationContainer>
+                    <StatusBar style="dark" />
+                    <View style={styles.container}>
+                        <AppNavigation />
+                    </View>
+                </NavigationContainer>
+            </AuthProvider>
+        </BiometricProvider>
     );
 }
 
