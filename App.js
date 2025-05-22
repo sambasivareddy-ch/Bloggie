@@ -4,7 +4,7 @@ import { StyleSheet, View, SafeAreaView, Alert } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import * as LocalAuthentication from 'expo-local-authentication';
+import * as LocalAuthentication from "expo-local-authentication";
 import * as Font from "expo-font";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -12,13 +12,22 @@ import Home from "./screens/Home";
 import Feed from "./screens/Feed";
 import Blog from "./screens/Blog";
 import Login from "./screens/Login";
+import Drafts from "./screens/Drafts";
 import Profile from "./screens/Profile";
 import TextEditor from "./screens/TextEditor";
 import CreateAccount from "./screens/CreateAccount";
-import { ChangeEmail, ChangePassword, ResetPasswordWithEmail } from "./screens/ChangeCredential";
+import {
+    ChangeEmail,
+    ChangePassword,
+    ResetPasswordWithEmail,
+} from "./screens/ChangeCredential";
 
 import { AuthProvider, AuthContext } from "./context/authContext";
-import { BiometricContext, BiometricProvider } from "./context/biometricContext";
+import {
+    BiometricContext,
+    BiometricProvider,
+} from "./context/biometricContext";
+import { DraftsProvider } from "./context/draftsContext";
 
 const fetchFonts = () => {
     return Font.loadAsync({
@@ -40,13 +49,29 @@ const TabsNav = () => {
                 options={{
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons
-                            name="book-outline"
+                            name="library-outline"
                             size={size}
                             color={color}
                         />
                     ),
                     tabBarActiveTintColor: "#673ab7",
-                    title: "Your Blogs",
+                    title: "Feed",
+                    tabBarLabelPosition: "beside-icon",
+                }}
+            />
+            <TabNavigator.Screen
+                name="Drafts"
+                component={Drafts}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons
+                            name="albums-outline"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                    tabBarActiveTintColor: "#673ab7",
+                    title: "Drafts",
                     tabBarLabelPosition: "beside-icon",
                 }}
             />
@@ -55,10 +80,14 @@ const TabsNav = () => {
                 component={Profile}
                 options={{
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="person-circle-outline" size={size} color={color} />
+                        <Ionicons
+                            name="person-circle-outline"
+                            size={size}
+                            color={color}
+                        />
                     ),
                     title: "Profile",
-                    tabBarActiveTintColor: '#673ab7',
+                    tabBarActiveTintColor: "#673ab7",
                     tabBarLabelPosition: "beside-icon",
                 }}
             />
@@ -67,43 +96,44 @@ const TabsNav = () => {
 };
 
 const MainAppNav = () => {
-  return (
-      <StackNavigator.Navigator screenOptions={{
-        headerBackButtonDisplayMode: 'minimal',
-      }}>
-          <StackNavigator.Screen
-              name="Main"
-              component={TabsNav}
-              options={{ headerShown: false }}
-          />
-          <StackNavigator.Screen name="Blog" component={Blog} />
-          <StackNavigator.Screen
-              name="Editor"
-              component={TextEditor}
-          />
-          <StackNavigator.Screen
-              name="ChangePassword"
-              component={ChangePassword}
-              options={{
-                title: 'Change Password'
-              }}
-          />
-          <StackNavigator.Screen
-              name="ChangeEmail"
-              component={ChangeEmail}
-              options={{
-                title: 'Change Email'
-              }}
-          />
-      </StackNavigator.Navigator>
-  );
+    return (
+        <StackNavigator.Navigator
+            screenOptions={{
+                headerBackButtonDisplayMode: "minimal",
+            }}
+        >
+            <StackNavigator.Screen
+                name="Main"
+                component={TabsNav}
+                options={{ headerShown: false }}
+            />
+            <StackNavigator.Screen name="Blog" component={Blog} />
+            <StackNavigator.Screen name="Editor" component={TextEditor} />
+            <StackNavigator.Screen
+                name="ChangePassword"
+                component={ChangePassword}
+                options={{
+                    title: "Change Password",
+                }}
+            />
+            <StackNavigator.Screen
+                name="ChangeEmail"
+                component={ChangeEmail}
+                options={{
+                    title: "Change Email",
+                }}
+            />
+        </StackNavigator.Navigator>
+    );
 };
 
 const StackNav = () => {
     return (
-        <StackNavigator.Navigator screenOptions={{
-          headerBackButtonDisplayMode: 'minimal'
-        }}>
+        <StackNavigator.Navigator
+            screenOptions={{
+                headerBackButtonDisplayMode: "minimal",
+            }}
+        >
             <StackNavigator.Screen
                 name="Home"
                 component={Home}
@@ -120,12 +150,12 @@ const StackNav = () => {
                 options={{ title: "Login" }}
             />
             <StackNavigator.Screen
-              name="ResetPassword"
-              component={ResetPasswordWithEmail}
-              options={{
-                title: 'Reset Password'
-              }}
-          />
+                name="ResetPassword"
+                component={ResetPasswordWithEmail}
+                options={{
+                    title: "Reset Password",
+                }}
+            />
         </StackNavigator.Navigator>
     );
 };
@@ -141,21 +171,23 @@ const AppNavigation = () => {
             const enrolled = await LocalAuthentication.isEnrolledAsync();
 
             if (!compatible || !enrolled) {
-                Alert.alert('Biometrics not available', 'Device has no biometrics');
+                Alert.alert(
+                    "Biometrics not available",
+                    "Device has no biometrics"
+                );
                 return;
             }
 
             const result = await LocalAuthentication.authenticateAsync({
                 promptMessage: "Authenticate to access app",
-                fallbackLabel: 'Enter passcode',
-            })
+                fallbackLabel: "Enter passcode",
+            });
 
-            setAuthenticated(result.success)
-        }
+            setAuthenticated(result.success);
+        };
 
-        if (enabled)
-            authenticate();
-    }, [enabled])
+        if (enabled) authenticate();
+    }, [enabled]);
 
     if (enabled && !authenticated) {
         return null;
@@ -163,7 +195,11 @@ const AppNavigation = () => {
 
     let mainNav = <StackNav />;
     if (authState.isLoggedIn) {
-        mainNav = <MainAppNav />;
+        mainNav = (
+            <DraftsProvider>
+                <MainAppNav />
+            </DraftsProvider>
+        );
     }
 
     return mainNav;

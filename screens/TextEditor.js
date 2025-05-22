@@ -1,4 +1,10 @@
-import React, { useRef, useState, useLayoutEffect, useContext } from "react";
+import React, {
+    useRef,
+    useState,
+    useLayoutEffect,
+    useContext,
+    useEffect,
+} from "react";
 import {
     TextInput,
     Text,
@@ -17,20 +23,44 @@ import {
     RichToolbar,
     actions,
 } from "react-native-pell-rich-editor";
-import QuillEditor, { QuillToolbar } from 'react-native-cn-quill';
 
 import { AuthContext } from "../context/authContext";
+import { DraftsContext, saveDraft } from "../context/draftsContext";
 import { postBlogToFirebase, updateBlogToFirebase } from "../utils/request";
 import AppButton from "../components/AppButton";
 
 const TextEditor = (props) => {
     const params = props.route.params;
     const { authState } = useContext(AuthContext);
+    const { saveDraft, deleteDraft } = useContext(DraftsContext);
 
     const richText = useRef();
     const [title, setTitle] = useState(params ? params.blogTitle : "");
     const [tags, setTags] = useState(params ? params.blogTags : []);
+    const [content, setContent] = useState(params?.content || "");
     const [tagInput, setTagInput] = useState("");
+
+    const draftTimeout = useRef(null); 
+
+    useEffect(() => {
+        if (draftTimeout.current) clearTimeout(draftTimeout.current);
+
+        if (!params || params?.draftId) {
+            draftTimeout.current = setTimeout(() => {
+                if (title.trim()) {
+                    saveDraft({
+                        title: title,
+                        tags: tags,
+                        content: content,
+                        id: params?.docId,
+                        draftId: params?.draftId
+                    });
+                }
+            }, 5000);
+    
+            return () => clearTimeout(draftTimeout.current);
+        }
+    }, [title, tags, content]);
 
     const addTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -54,7 +84,9 @@ const TextEditor = (props) => {
             Alert.alert("Inputs", "Please add title & content");
         }
 
-        const content = await richText.current.getContentHtml();
+        if (draftTimeout.current) {
+            clearTimeout(draftTimeout.current);
+        }
 
         if (!params) {
             await postBlogToFirebase(
@@ -68,12 +100,12 @@ const TextEditor = (props) => {
                 authState.authToken
             )
                 .then(() => {
-                    props.navigation.navigate('Main')
+                    props.navigation.navigate("Main");
                 })
                 .catch((err) => {
                     console.error(err);
                 });
-        } else {
+        } else if (params && params.docId) {
             await updateBlogToFirebase(
                 {
                     userId: authState.uid,
@@ -86,7 +118,30 @@ const TextEditor = (props) => {
                 authState.authToken
             )
                 .then(() => {
-                    props.navigation.navigate('Main')
+                    deleteDraft(params?.draftId);
+                })
+                .then(() => {
+                    props.navigation.navigate("Main");
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        } else if (params && !params.docId) {
+            await postBlogToFirebase(
+                {
+                    userId: authState.uid,
+                    title: title,
+                    tags: tags,
+                    date: Date.now(),
+                    content: content,
+                },
+                authState.authToken
+            )
+                .then(() => {
+                    deleteDraft(params?.draftId);
+                })
+                .then(() => {
+                    props.navigation.navigate("Main");
                 })
                 .catch((err) => {
                     console.error(err);
@@ -160,7 +215,8 @@ const TextEditor = (props) => {
                         placeholder="Blog content here"
                         style={styles.richEditor}
                         initialHeight={400}
-                        initialContentHTML={[params?.content || '']}
+                        initialContentHTML={[params?.content || ""]}
+                        onChange={setContent}
                     />
 
                     <AppButton

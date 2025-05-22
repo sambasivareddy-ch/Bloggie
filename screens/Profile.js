@@ -44,7 +44,7 @@ const Profile = ({ navigation }) => {
     return (
         <View style={styles.profileContainer}>
             <View style={styles.profile}>
-                <Text style={styles.email}>Email: {authState.email}</Text>
+                <Text style={styles.email}>{authState.email}</Text>
                 <Text style={styles.uid}>UID: {authState.uid}</Text>
             </View>
             <View style={styles.profileSettings}>

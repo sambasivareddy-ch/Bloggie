@@ -21,7 +21,7 @@ const FeedCard = ({ id, title, date, tags, onPress, tagPressHandler }) => {
                 >
                     <Text style={styles.feedTitle}>{title}</Text>
                 </Pressable>
-                <Text style={styles.feedText}>Date: {(new Date(date)).toString()}</Text>
+                {date && <Text style={styles.feedText}>Date: {(new Date(date)).toString()}</Text>}
                 <View style={styles.tags}>
                     {tags && tags.map((tag) => {
                         return <Tag text={tag} key={Math.random()} onPress={tagPressHandler}/>
