@@ -12,7 +12,7 @@ import { useState, useContext, useEffect } from "react";
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
 import Loading from "../components/Loading";
-import { changeAccountEmail, changeAccountPassword } from "../utils/request";
+import { changeAccountEmail, changeAccountPassword, resetPasswordWithEmail } from "../utils/request";
 
 import { AuthContext } from '../context/authContext';
 
@@ -63,7 +63,7 @@ export const ChangePassword = ({navigation}) => {
                         <View style={styles.formContainer}>
                             <Text style={styles.formTitle}>Change Password</Text>
                             <InputField
-                                placeholder={"Password"}
+                                placeholder={"New Password"}
                                 keyboardType={"default"}
                                 isPassword={true}
                                 ariaLabel={"Password"}
@@ -159,6 +159,76 @@ export const ChangeEmail = ({ navigation }) => {
     </View>;
 };
 
+export const ResetPasswordWithEmail = ({navigation}) => {
+    const [userEmail, setUserEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
+
+    const { authState, login } = useContext(AuthContext);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setHasError(false);
+        }, 3000)
+    }, [hasError])
+
+    const formSubmitHandler = async () => {
+        if (!userEmail) {
+            Alert.alert("Invalid Input", "Please enter all the input in all fields");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const info = await resetPasswordWithEmail(userEmail);
+
+            if (info) {
+                navigation.navigate('Login');
+            }
+        } catch (err) {
+            setHasError(true);
+            setIsLoading(false);
+        }
+    };
+
+    let content = <Loading text={"Sending the reset email...."} />;
+
+    if (!isLoading) {
+        content = (
+            <KeyboardAvoidingView
+                enabled={true}
+                behavior="padding"
+                style={styles.view}
+            >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.signInContainer}>
+                        <View style={styles.formContainer}>
+                            <Text style={styles.formTitle}>Reset Password with Email</Text>
+                            <InputField
+                                placeholder={"Email Address"}
+                                keyboardType={"email-address"}
+                                ariaLabel={"Email"}
+                                value={userEmail}
+                                changeHandler={setUserEmail}
+                            />
+                            <AppButton
+                                text={"Reset"}
+                                onPress={formSubmitHandler}
+                                withBorder={true}
+                            />
+                            {hasError && <Text style={styles.errorMessage}>Invalid Email Address</Text>}
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+        );
+    }
+
+    return <View style={styles.view}>
+        {content}
+    </View>;
+};
+
 const styles = StyleSheet.create({
     view: {
         flex: 1,
@@ -176,7 +246,8 @@ const styles = StyleSheet.create({
     },
     formTitle: {
         fontFamily: "Raleway",
-        fontSize: 32,
+        fontSize: 24,
+        // fontWeight: 'bold'
     },
     errorMessage: {
         color: "#f44336",

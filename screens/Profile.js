@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Button } from 'react-native';
 import { useContext } from 'react';
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+import PressableText from '../components/PressableText';
 import { AuthContext } from '../context/authContext';
 import { deleteAccount } from '../utils/request';
 
@@ -40,10 +41,10 @@ const Profile = ({navigation}) => {
                     <Ionicons name="settings-outline" size={28}/>
                     <Text style={styles.setting}>Settings</Text>
                 </View>
-                <Button title='Change Email' color={'#000'} onPress={emailChangeHandler}/>
-                <Button title='Change Password' color={'#000'} onPress={passwordChangeHandler}/>
-                <Button title='Logout' color={'#4703d1'} onPress={pressHandler}/>
-                <Button title='Delete Account' color={'#f44336'} onPress={deleteAccountHandler}/>
+                <PressableText text='Change Email' color={'#000'} onPress={emailChangeHandler}/>
+                <PressableText text='Change Password' color={'#000'} onPress={passwordChangeHandler}/>
+                <PressableText text='Logout' color={'#4703d1'} onPress={pressHandler}/>
+                <PressableText text='Delete Account' color={'#f44336'} onPress={deleteAccountHandler}/>
             </View>
         </View>
     )

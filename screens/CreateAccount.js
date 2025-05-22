@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
+import PressableText from "../components/PressableText";
 import { createAccount } from "../utils/request";
 import Loading from "../components/Loading";
 
@@ -20,6 +21,7 @@ const CreateAccount = ({ navigation }) => {
     const [userConfirmedPassword, setUserConfirmedPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         setTimeout(() => {
@@ -45,13 +47,12 @@ const CreateAccount = ({ navigation }) => {
         try {
             setIsLoading(true);
             await createAccount(userEmail, userPassword);
+            navigation.navigate('Login')
         } catch (err) {
             setHasError(true);
             setIsLoading(false);
         }
 
-        if (hasError)
-            navigation.navigate('Login')
     };
 
     let content = <Loading text={"Creating the account..."} />;
@@ -78,7 +79,7 @@ const CreateAccount = ({ navigation }) => {
                             <InputField
                                 placeholder={"Password"}
                                 keyboardType={"default"}
-                                isPassword={true}
+                                isPassword={!showPassword}
                                 ariaLabel={"Password"}
                                 value={userPassword}
                                 changeHandler={setUserPassword}
@@ -86,11 +87,13 @@ const CreateAccount = ({ navigation }) => {
                             <InputField
                                 placeholder={"Confirm Password"}
                                 keyboardType={"default"}
-                                isPassword={true}
+                                isPassword={!showPassword}
                                 ariaLabel={"ConfirmPassword"}
                                 value={userConfirmedPassword}
                                 changeHandler={setUserConfirmedPassword}
                             />
+                            {!showPassword && <PressableText text={"Show Password"} onPress={() => {setShowPassword(true)}}/>}
+                            {showPassword && <PressableText text={"Hide Password"} onPress={() => {setShowPassword(false)}}/>}
                             <AppButton
                                 text={"Create Account"}
                                 onPress={formSubmitHandler}

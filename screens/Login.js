@@ -12,7 +12,8 @@ import { useState, useContext, useEffect } from "react";
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
 import Loading from "../components/Loading";
-import { loginIntoAccount } from "../utils/request";
+import PressableText from "../components/PressableText";
+import { loginIntoAccount, changeAccountPassword } from "../utils/request";
 import { AuthContext } from "../context/authContext";
 
 const Login = ({ route, navigation }) => {
@@ -20,6 +21,7 @@ const Login = ({ route, navigation }) => {
     const [userPassword, setUserPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [showPassword, setShowPasswords] = useState(false);
 
     const { login } = useContext(AuthContext);
 
@@ -32,6 +34,10 @@ const Login = ({ route, navigation }) => {
     const createAccountChangeHandler = () => {
         navigation.navigate("SignUp");
     };
+
+    const passwordChangeHandler = () => {
+        navigation.navigate("ResetPassword");
+    }
 
     const formSubmitHandler = async () => {
         if (!userEmail || !userPassword) {
@@ -76,17 +82,24 @@ const Login = ({ route, navigation }) => {
                             <InputField
                                 placeholder={"Password"}
                                 keyboardType={"default"}
-                                isPassword={true}
+                                isPassword={!showPassword}
                                 ariaLabel={"Password"}
                                 value={userPassword}
                                 changeHandler={setUserPassword}
                             />
+                            {!showPassword && <PressableText text={"Show Password"} onPress={() => {setShowPasswords(true)}}/>}
+                            {showPassword && <PressableText text={"Hide Password"} onPress={() => {setShowPasswords(false)}}/>}
                             <AppButton
                                 text={"Login into Account"}
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
                             {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
+                            <AppButton
+                                text={"Forget Password?"}
+                                onPress={passwordChangeHandler}
+                                withBorder={false}
+                            />
                             <AppButton
                                 text={"Click to Create"}
                                 onPress={createAccountChangeHandler}

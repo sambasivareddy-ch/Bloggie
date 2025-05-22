@@ -14,7 +14,7 @@ import Login from "./screens/Login";
 import Profile from "./screens/Profile";
 import TextEditor from "./screens/TextEditor";
 import CreateAccount from "./screens/CreateAccount";
-import { ChangeEmail, ChangePassword } from "./screens/ChangeCredential";
+import { ChangeEmail, ChangePassword, ResetPasswordWithEmail } from "./screens/ChangeCredential";
 
 import { AuthProvider, AuthContext } from "./context/authContext";
 
@@ -117,6 +117,13 @@ const StackNav = () => {
                 component={Login}
                 options={{ title: "Login" }}
             />
+            <StackNavigator.Screen
+              name="ResetPassword"
+              component={ResetPasswordWithEmail}
+              options={{
+                title: 'Reset Password'
+              }}
+          />
         </StackNavigator.Navigator>
     );
 };

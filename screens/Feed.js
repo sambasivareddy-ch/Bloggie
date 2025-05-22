@@ -146,7 +146,7 @@ const Feed = ({ route, navigation }) => {
                             You don't have any blogs
                         </Text>
                     )}
-                    {data.length === 0 && (
+                    {userBlogs.length !== 0 && data.length === 0 && (
                         <Text style={styles.noBlogsText}>
                             No matching blogs...
                         </Text>

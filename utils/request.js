@@ -17,7 +17,7 @@ const authPostRequestHandler = async (method, data) => {
 
         const result = await response.json();
 
-        if (method === 'delete') {
+        if (method === 'delete' || method === 'sendOobCode') {
             return true;
         }
 
@@ -66,6 +66,13 @@ export const changeAccountEmail = async (email, token) => {
 export const deleteAccount = async (token) => {
     return authPostRequestHandler("delete", {
         idToken: token,
+    })
+}
+
+export const resetPasswordWithEmail = async (email) => {
+    return authPostRequestHandler("sendOobCode", {
+        requestType: 'PASSWORD_RESET',
+        email
     })
 }
 
