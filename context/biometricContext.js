@@ -40,7 +40,12 @@ export const BiometricProvider = ({ children }) => {
         setEnabled(true);
     };
 
-    const disableBiometric = () => {
+    const disableBiometric = async () => {
+        try {
+            await AsyncStorage.removeItem('biometric')
+        } catch(err) {
+            console.error('error occurred deleting auth info')
+        }
         setEnabled(false);
     };
 

@@ -108,9 +108,11 @@ const Blog = ({ route, navigation }) => {
                         source={{ html: blog.content }}
                         contentWidth={width}
                         tagsStyles={{
-                            b: { fontWeight: "bold" },
+                            div: {margin: 10, fontSize: 16, lineHeight: 25 },
+                            b: { fontWeight: "bold", margin: 10 },
                             i: { fontStyle: "italic" },
                             u: { textDecorationLine: "underline" },
+                            ul: { marginVertical: 10},
                             blockquote: {
                                 marginVertical: 10,
                                 padding: 10,
