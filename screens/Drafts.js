@@ -13,6 +13,7 @@ const Drafts = ({ navigation }) => {
             blogTitle: draft.title,
             blogTags: draft.tags,
             draftId: draft.draftId,
+            docId: draft.id,
         })
     }
 

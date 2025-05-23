@@ -1,9 +1,11 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 
-const AppButton = ({ text, onPress, withBorder }) => {
+const AppButton = ({ text, onPress, withBorder, propStyles = {} }) => {
     const pressHandler = () => {
         onPress();
     };
+
+    const baseStyles = withBorder ? styles.buttonContainer: styles.buttonContainerWithoutBorder;
 
     return (
         <Pressable
@@ -16,11 +18,7 @@ const AppButton = ({ text, onPress, withBorder }) => {
             }
         >
             <View
-                style={
-                    withBorder
-                        ? styles.buttonContainer
-                        : styles.buttonContainerWithoutBorder
-                }
+                style={[baseStyles, propStyles]}
             >
                 <Text
                     style={[

@@ -5,7 +5,7 @@ import { AuthContext } from "./authContext";
 
 export const DraftsContext = createContext({
     drafts: [],
-    saveDraft: (blog) => {},
+    saveDraft: async (blog) => true,
     deleteDraft: (title) => {},
 });
 
@@ -61,8 +61,10 @@ export const DraftsProvider = ({ children }) => {
                     drafts: updatedDrafts,
                 })
             );
+            return true;
         } catch (err) {
             console.error("error occurred setting drafts info");
+            return false;
         }
     };
 

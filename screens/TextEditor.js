@@ -3,7 +3,6 @@ import React, {
     useState,
     useLayoutEffect,
     useContext,
-    useEffect,
 } from "react";
 import {
     TextInput,
@@ -25,7 +24,7 @@ import {
 } from "react-native-pell-rich-editor";
 
 import { AuthContext } from "../context/authContext";
-import { DraftsContext, saveDraft } from "../context/draftsContext";
+import { DraftsContext } from "../context/draftsContext";
 import { postBlogToFirebase, updateBlogToFirebase } from "../utils/request";
 import AppButton from "../components/AppButton";
 
@@ -37,30 +36,23 @@ const TextEditor = (props) => {
     const richText = useRef();
     const [title, setTitle] = useState(params ? params.blogTitle : "");
     const [tags, setTags] = useState(params ? params.blogTags : []);
-    const [content, setContent] = useState(params?.content || "");
     const [tagInput, setTagInput] = useState("");
 
-    const draftTimeout = useRef(null); 
+    const saveDraftButtonHandler = async () => {
+        const content = await richText.current.getContentHtml();
 
-    useEffect(() => {
-        if (draftTimeout.current) clearTimeout(draftTimeout.current);
+        const result = saveDraft({
+            title: title,
+            tags: tags,
+            content: content,
+            id: params?.docId,
+            draftId: params?.draftId
+        });
 
-        if (!params || params?.draftId) {
-            draftTimeout.current = setTimeout(() => {
-                if (title.trim()) {
-                    saveDraft({
-                        title: title,
-                        tags: tags,
-                        content: content,
-                        id: params?.docId,
-                        draftId: params?.draftId
-                    });
-                }
-            }, 5000);
-    
-            return () => clearTimeout(draftTimeout.current);
+        if (result) {
+            props.navigation.navigate('Main')
         }
-    }, [title, tags, content]);
+    }
 
     const addTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -84,9 +76,7 @@ const TextEditor = (props) => {
             Alert.alert("Inputs", "Please add title & content");
         }
 
-        if (draftTimeout.current) {
-            clearTimeout(draftTimeout.current);
-        }
+        const content = await richText.current.getContentHtml();
 
         if (!params) {
             await postBlogToFirebase(
@@ -216,15 +206,22 @@ const TextEditor = (props) => {
                         style={styles.richEditor}
                         initialHeight={400}
                         initialContentHTML={[params?.content || ""]}
-                        onChange={setContent}
                     />
 
-                    <AppButton
-                        text={params ? "Update" : "Save"}
-                        withBorder={true}
-                        onPress={submitHandler}
-                        propStyles={styles.submitButton}
-                    />
+                    <View style={styles.editorButtons}>
+                        <AppButton
+                            text={params ? "Update" : "Save"}
+                            withBorder={true}
+                            onPress={submitHandler}
+                            propStyles={styles.submitButton}
+                        />
+                        <AppButton
+                            text={"Save Draft"}
+                            withBorder={true}
+                            onPress={saveDraftButtonHandler}
+                            propStyles={styles.draftButton}
+                        />
+                    </View>
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -257,16 +254,10 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         minHeight: 200,
         fontFamily: "Poppins",
-        borderBottomColor: "#e1e1e1",
-        borderBottomWidth: 2,
-        borderTopColor: "#e1e1e1",
         height: 400,
-        // borderTopWidth: 2,
     },
     richToolbar: {
         marginTop: 12,
-        // borderTopWidth: 1,
-        // borderColor: "#ddd",
         fontFamily: "Poppins",
         backgroundColor: "#fff",
     },
@@ -292,6 +283,20 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: "#fff",
     },
+    editorButtons: {
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        flexDirection: 'row',
+        gap: 5,
+    },
+    submitButton: {
+        width: 150
+    },
+    draftButton: {
+        width: 150,
+        backgroundColor: '#03a9f4',
+    }
 });
 
 export default TextEditor;
