@@ -6,10 +6,13 @@ import Tag from "../components/Tag";
 import IconButton from "../components/IconButton";
 import Loading from "../components/Loading";
 import { AuthContext } from "../context/authContext";
+import { ThemeContext } from "../context/themeContext";
 import { getBlogsFromFirebase, deleteBlogFromFirebase } from "../utils/request";
+import { darkThemeColor, lightThemeColor } from "../utils/themeColors";
 
 const Blog = ({ route, navigation }) => {
     const { authState } = useContext(AuthContext);
+    const { darkMode } = useContext(ThemeContext);
     const [blog, setBlog] = useState();
     const [isLoading, setIsLoading] = useState(false);
     const { id } = route.params;
@@ -80,16 +83,20 @@ const Blog = ({ route, navigation }) => {
         fetchUserPost();
     }, []);
 
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
+
     let content = <Loading text={"Loading the blog..."} />;
 
     if (!isLoading && !blog) content = <Text>No content in the blog</Text>;
 
     if (!isLoading && blog) {
         content = (
-            <View style={styles.blogContainer}>
+            <View style={[styles.blogContainer, themeBasedColors]}>
                 <View style={styles.container}>
-                    <Text style={styles.title}>{blog.title}</Text>
-                    <Text style={styles.date}>
+                    <Text style={[styles.title, darkMode && { color: "#fff" }]}>
+                        {blog.title}
+                    </Text>
+                    <Text style={[styles.date, darkMode && { color: "#fff" }]}>
                         Date: {new Date(blog.date).toString()}
                     </Text>
                     <View style={styles.tags}>
@@ -108,17 +115,22 @@ const Blog = ({ route, navigation }) => {
                         source={{ html: blog.content }}
                         contentWidth={width}
                         tagsStyles={{
-                            div: {margin: 10, fontSize: 16, lineHeight: 25 },
+                            div: {
+                                margin: 10,
+                                fontSize: 16,
+                                lineHeight: 25,
+                                color: darkMode ? "#fff" : "#000",
+                            },
                             b: { fontWeight: "bold", margin: 10 },
                             i: { fontStyle: "italic" },
                             u: { textDecorationLine: "underline" },
-                            ul: { marginVertical: 10},
+                            ul: { marginVertical: 10 },
                             blockquote: {
                                 marginVertical: 10,
                                 padding: 10,
                                 borderLeftWidth: 4,
                                 borderLeftColor: "#ccc",
-                                backgroundColor: "#eee"
+                                backgroundColor: "#eee",
                             },
                         }}
                     />

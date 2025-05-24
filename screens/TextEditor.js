@@ -1,9 +1,4 @@
-import React, {
-    useRef,
-    useState,
-    useLayoutEffect,
-    useContext,
-} from "react";
+import React, { useRef, useState, useLayoutEffect, useContext } from "react";
 import {
     TextInput,
     Text,
@@ -25,6 +20,7 @@ import {
 
 import { AuthContext } from "../context/authContext";
 import { DraftsContext } from "../context/draftsContext";
+import { ThemeContext } from "../context/themeContext";
 import { postBlogToFirebase, updateBlogToFirebase } from "../utils/request";
 import AppButton from "../components/AppButton";
 
@@ -32,6 +28,7 @@ const TextEditor = (props) => {
     const params = props.route.params;
     const { authState } = useContext(AuthContext);
     const { saveDraft, deleteDraft } = useContext(DraftsContext);
+    const { darkMode } = useContext(ThemeContext);
 
     const richText = useRef();
     const [title, setTitle] = useState(params ? params.blogTitle : "");
@@ -46,13 +43,13 @@ const TextEditor = (props) => {
             tags: tags,
             content: content,
             id: params?.docId,
-            draftId: params?.draftId
+            draftId: params?.draftId,
         });
 
         if (result) {
-            props.navigation.navigate('Main')
+            props.navigation.navigate("Main");
         }
-    }
+    };
 
     const addTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -140,12 +137,18 @@ const TextEditor = (props) => {
     };
 
     return (
-        <KeyboardAvoidingView behavior={"padding"} style={styles.container}>
+        <KeyboardAvoidingView
+            behavior={"padding"}
+            style={[styles.container, darkMode && { backgroundColor: "#000" }]}
+        >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.editorWrapper}>
                     {/* Editable Title Input */}
                     <TextInput
-                        style={styles.titleInput}
+                        style={[
+                            styles.titleInput,
+                            darkMode && { color: "#fff" },
+                        ]}
                         placeholder="Title Here..."
                         value={title}
                         onChangeText={setTitle}
@@ -165,14 +168,27 @@ const TextEditor = (props) => {
                             renderItem={({ item }) => (
                                 <TouchableOpacity
                                     onPress={() => removeTag(item)}
-                                    style={styles.tag}
+                                    style={[
+                                        styles.tag,
+                                        darkMode && { backgroundColor: "#fff" },
+                                    ]}
                                 >
-                                    <Text style={styles.tagText}>{item} ✕</Text>
+                                    <Text
+                                        style={[
+                                            styles.tagText,
+                                            darkMode && { color: "#000" },
+                                        ]}
+                                    >
+                                        {item} ✕
+                                    </Text>
                                 </TouchableOpacity>
                             )}
                         />
                         <TextInput
-                            style={styles.tagInput}
+                            style={[
+                                styles.tagInput,
+                                darkMode && { color: "#fff" },
+                            ]}
                             placeholder="Add tag and press enter"
                             value={tagInput}
                             onChangeText={setTagInput}
@@ -193,7 +209,7 @@ const TextEditor = (props) => {
                             actions.insertBulletsList,
                             actions.insertOrderedList,
                         ]}
-                        iconTint="#000"
+                        iconTint={"#000"}
                         selectedIconTint="#6200EE"
                         selectedButtonStyle={{ backgroundColor: "#f2f2f2" }}
                         style={styles.richToolbar}
@@ -206,6 +222,10 @@ const TextEditor = (props) => {
                         style={styles.richEditor}
                         initialHeight={400}
                         initialContentHTML={[params?.content || ""]}
+                        editorStyle={{
+                            backgroundColor: darkMode ? "#000" : "#fff",
+                            color: darkMode ? "#fff" : "#000",
+                        }}
                     />
 
                     <View style={styles.editorButtons}>
@@ -284,19 +304,19 @@ const styles = StyleSheet.create({
         color: "#fff",
     },
     editorButtons: {
-        position: 'absolute',
+        position: "absolute",
         bottom: 20,
         left: 0,
-        flexDirection: 'row',
+        flexDirection: "row",
         gap: 5,
     },
     submitButton: {
-        width: 150
+        width: 150,
     },
     draftButton: {
         width: 150,
-        backgroundColor: '#03a9f4',
-    }
+        backgroundColor: "#03a9f4",
+    },
 });
 
 export default TextEditor;

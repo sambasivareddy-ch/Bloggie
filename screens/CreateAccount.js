@@ -7,7 +7,7 @@ import {
     Keyboard,
     Alert,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
@@ -15,7 +15,12 @@ import PressableText from "../components/PressableText";
 import { createAccount } from "../utils/request";
 import Loading from "../components/Loading";
 
+import { ThemeContext } from "../context/themeContext";
+import { darkThemeColor, lightThemeColor } from "../utils/themeColors";
+
 const CreateAccount = ({ navigation }) => {
+    const { darkMode } = useContext(ThemeContext);
+
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const [userConfirmedPassword, setUserConfirmedPassword] = useState("");
@@ -26,8 +31,8 @@ const CreateAccount = ({ navigation }) => {
     useEffect(() => {
         setTimeout(() => {
             setHasError(false);
-        }, 3000)
-    }, [hasError])
+        }, 3000);
+    }, [hasError]);
 
     const loginPageHandler = () => {
         navigation.navigate("Login");
@@ -36,24 +41,25 @@ const CreateAccount = ({ navigation }) => {
     const formSubmitHandler = async () => {
         if (!userEmail || !userPassword || !userConfirmedPassword) {
             Alert.alert("Invalid Input", "Please enter all the data");
-            return
+            return;
         }
 
         if (userPassword !== userConfirmedPassword) {
             Alert.alert("Password Mismatch", "Please check the passwords");
-            return
+            return;
         }
 
         try {
             setIsLoading(true);
             await createAccount(userEmail, userPassword);
-            navigation.navigate('Login')
+            navigation.navigate("Login");
         } catch (err) {
             setHasError(true);
             setIsLoading(false);
         }
-
     };
+
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
 
     let content = <Loading text={"Creating the account..."} />;
 
@@ -65,9 +71,16 @@ const CreateAccount = ({ navigation }) => {
                 style={styles.view}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View style={styles.signInContainer}>
+                    <View style={[styles.signInContainer, themeBasedColors]}>
                         <View style={styles.formContainer}>
-                            <Text style={styles.formTitle}>Create Account</Text>
+                            <Text
+                                style={[
+                                    styles.formTitle,
+                                    darkMode && { color: "#fff" },
+                                ]}
+                            >
+                                Create Account
+                            </Text>
                             <InputField
                                 placeholder={"Email Address"}
                                 keyboardType={"email-address"}
@@ -92,14 +105,34 @@ const CreateAccount = ({ navigation }) => {
                                 value={userConfirmedPassword}
                                 changeHandler={setUserConfirmedPassword}
                             />
-                            {!showPassword && <PressableText text={"Show Password"} onPress={() => {setShowPassword(true)}}/>}
-                            {showPassword && <PressableText text={"Hide Password"} onPress={() => {setShowPassword(false)}}/>}
+                            {!showPassword && (
+                                <PressableText
+                                    text={"Show Password"}
+                                    color={darkMode ? "#fff" : "#000"}
+                                    onPress={() => {
+                                        setShowPassword(true);
+                                    }}
+                                />
+                            )}
+                            {showPassword && (
+                                <PressableText
+                                    text={"Hide Password"}
+                                    color={darkMode ? "#fff" : "#000"}
+                                    onPress={() => {
+                                        setShowPassword(false);
+                                    }}
+                                />
+                            )}
                             <AppButton
                                 text={"Create Account"}
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
-                            {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
+                            {hasError && (
+                                <Text style={styles.errorMessage}>
+                                    Invalid Credentials
+                                </Text>
+                            )}
                             <AppButton
                                 text={"Click to Login"}
                                 onPress={loginPageHandler}
@@ -139,6 +172,6 @@ const styles = StyleSheet.create({
     errorMessage: {
         color: "#f44336",
         fontSize: 18,
-        fontFamily: 'Poppins'
-    }
+        fontFamily: "Poppins",
+    },
 });

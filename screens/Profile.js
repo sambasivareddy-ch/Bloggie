@@ -5,12 +5,16 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import PressableText from "../components/PressableText";
 import { AuthContext } from "../context/authContext";
 import { BiometricContext } from "../context/biometricContext";
+import { ThemeContext } from "../context/themeContext";
 import { deleteAccount } from "../utils/request";
+import { darkThemeColor, lightThemeColor } from "../utils/themeColors";
 
 const Profile = ({ navigation }) => {
     const { authState, logout } = useContext(AuthContext);
     const { enabled, enableBiometric, disableBiometric } =
         useContext(BiometricContext);
+    const { darkMode, enableDarkMode, disbaleDarkMode } =
+        useContext(ThemeContext);
 
     const pressHandler = () => {
         logout();
@@ -41,36 +45,61 @@ const Profile = ({ navigation }) => {
         }
     };
 
+    const themeChangeHandler = () => {
+        if (darkMode) {
+            disbaleDarkMode();
+        } else {
+            enableDarkMode();
+        }
+    };
+
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
+
     return (
-        <View style={styles.profileContainer}>
-            <View style={styles.profile}>
-                <Text style={styles.email}>{authState.email}</Text>
-                <Text style={styles.uid}>UID: {authState.uid}</Text>
+        <View style={[styles.profileContainer, themeBasedColors]}>
+            <View style={[styles.profile, themeBasedColors]}>
+                <Text style={[styles.email, themeBasedColors]}>
+                    {authState.email}
+                </Text>
+                <Text style={[styles.uid, themeBasedColors]}>
+                    UID: {authState.uid}
+                </Text>
             </View>
             <View style={styles.profileSettings}>
                 <View style={styles.settingHeader}>
-                    <Ionicons name="settings-outline" size={28} />
-                    <Text style={styles.setting}>Settings</Text>
+                    <Ionicons
+                        name="settings-outline"
+                        size={28}
+                        color={darkMode ? "#fff" : "#000"}
+                    />
+                    <Text style={[styles.setting, themeBasedColors]}>
+                        Settings
+                    </Text>
                 </View>
                 <View style={styles.settings}>
                     <PressableText
                         text="Change Email"
-                        color={"#000"}
+                        color={darkMode ? "#fff" : "#000"}
                         onPress={emailChangeHandler}
                     />
                     <PressableText
                         text="Change Password"
-                        color={"#000"}
+                        color={darkMode ? "#fff" : "#000"}
                         onPress={passwordChangeHandler}
                     />
                     <PressableText
                         text={`${!enabled ? "Enable" : "Disable"} Biometrics`}
-                        color={"#000"}
+                        color={darkMode ? "#fff" : "#000"}
                         onPress={biometricsChangeHandler}
                     />
                     <PressableText
+                        text={`${!darkMode ? "Enable" : "Disable"} Dark Mode`}
+                        color={darkMode ? "#fff" : "#000"}
+                        onPress={themeChangeHandler}
+                    />
+                    <PressableText
                         text="Logout"
-                        color={"#4703d1"}
+                        color={darkMode ? "#fff" : "#4703d1"}
                         onPress={pressHandler}
                     />
                     <PressableText
@@ -89,7 +118,7 @@ export default Profile;
 const styles = StyleSheet.create({
     profileContainer: {
         flex: 1,
-        backgroundColor: "#fff",
+        // backgroundColor: "#fff",
     },
     profile: {
         flex: 1,

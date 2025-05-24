@@ -17,7 +17,7 @@ const authPostRequestHandler = async (method, data) => {
 
         const result = await response.json();
 
-        if (method === 'delete' || method === 'sendOobCode') {
+        if (method === "delete" || method === "sendOobCode") {
             return true;
         }
 
@@ -52,29 +52,29 @@ export const changeAccountPassword = async (password, token) => {
         password,
         idToken: token,
         returnSecureToken: true,
-    })
-}
+    });
+};
 
 export const changeAccountEmail = async (email, token) => {
     return authPostRequestHandler("update", {
         email,
         idToken: token,
         returnSecureToken: true,
-    })
-}
+    });
+};
 
 export const deleteAccount = async (token) => {
     return authPostRequestHandler("delete", {
         idToken: token,
-    })
-}
+    });
+};
 
 export const resetPasswordWithEmail = async (email) => {
     return authPostRequestHandler("sendOobCode", {
-        requestType: 'PASSWORD_RESET',
-        email
-    })
-}
+        requestType: "PASSWORD_RESET",
+        email,
+    });
+};
 
 export const postBlogToFirebase = async (document, access_token) => {
     try {
@@ -91,7 +91,7 @@ export const postBlogToFirebase = async (document, access_token) => {
 
         if (!response.ok) {
             console.error("error occurred during posting to firebase");
-            return
+            return;
         }
 
         const data = await response.json();

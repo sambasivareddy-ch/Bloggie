@@ -15,9 +15,7 @@ const PressableText = ({ text, onPress, color }) => {
                 }
             }
         >
-            <View
-                style={styles.buttonContainer}
-            >
+            <View style={styles.buttonContainer}>
                 <Text
                     style={[
                         styles.buttonText,

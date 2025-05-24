@@ -1,13 +1,22 @@
-import { View, Text, StyleSheet, FlatList, Button, Pressable } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    Button,
+    Pressable,
+} from "react-native";
 import { useState, useLayoutEffect, useContext, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { AuthContext } from "../context/authContext";
+import { ThemeContext } from "../context/themeContext";
 import IconButton from "../components/IconButton";
 import InputField from "../components/InputField";
 import FeedCard from "../components/FeedCard";
 import Loading from "../components/Loading";
 import { getBlogsFromFirebase } from "../utils/request";
+import { lightThemeColor, darkThemeColor } from "../utils/themeColors";
 
 const Feed = ({ route, navigation }) => {
     const params = route.params;
@@ -16,6 +25,7 @@ const Feed = ({ route, navigation }) => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
+    const { darkMode } = useContext(ThemeContext);
 
     useEffect(() => {
         const fetchUserPost = async () => {
@@ -25,13 +35,15 @@ const Feed = ({ route, navigation }) => {
                     authState.uid,
                     authState.authToken
                 );
-                const dataArray = blogs ? Object.entries(blogs).map(([id, item]) => ({
-                    id,
-                    ...item,
-                })): [];
+                const dataArray = blogs
+                    ? Object.entries(blogs).map(([id, item]) => ({
+                          id,
+                          ...item,
+                      }))
+                    : [];
                 setUserBlogs(dataArray);
                 setData(dataArray);
-                setSelectedTags([])
+                setSelectedTags([]);
             } catch (err) {
                 console.error(err);
             }
@@ -59,8 +71,8 @@ const Feed = ({ route, navigation }) => {
 
     const tagPressHandler = (tag) => {
         if (!selectedTags.includes(tag))
-            setSelectedTags([tag, ...selectedTags])
-    }
+            setSelectedTags([tag, ...selectedTags]);
+    };
 
     useEffect(() => {
         if (selectedTags.length) {
@@ -72,12 +84,12 @@ const Feed = ({ route, navigation }) => {
                     }
                 }
                 return false;
-            })
+            });
             setData(filteredBlogs);
         } else {
             setData(userBlogs);
         }
-    }, [selectedTags])
+    }, [selectedTags]);
 
     const searchHandler = (searchText) => {
         if (searchText.trim()) {
@@ -94,11 +106,21 @@ const Feed = ({ route, navigation }) => {
         }
     };
 
-    let content = <Loading text={params && params.loading ? params.loading  : "Loading the feed..."}/>;
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
+
+    let content = (
+        <Loading
+            text={
+                params && params.loading
+                    ? params.loading
+                    : "Loading the feed..."
+            }
+        />
+    );
 
     if (!isLoading) {
         content = (
-            <View style={styles.feedContainer}>
+            <View style={[styles.feedContainer, themeBasedColors]}>
                 <View style={styles.feedHeader}>
                     <InputField
                         placeholder={"Search with Title"}
@@ -108,20 +130,51 @@ const Feed = ({ route, navigation }) => {
                         changeHandler={searchHandler}
                     />
                 </View>
-                {selectedTags.length > 0 && <View style={styles.selectedTagsWrapper}>
-                    {selectedTags.map((tag) => {
-                        return <Pressable key={Math.random()} onPress={() => {
-                            setSelectedTags(selectedTags.filter((select) => select !== tag))
-                        }}>
-                            <View style={styles.selected}>
-                                <Text style={styles.tagName}>{tag}</Text>
-                                <Ionicons name="close-outline" size={16} color={"#4703d1"}/>
-                            </View>
-                        </Pressable>
-                    })}
-                </View>}
+                {selectedTags.length > 0 && (
+                    <View style={styles.selectedTagsWrapper}>
+                        {selectedTags.map((tag) => {
+                            return (
+                                <Pressable
+                                    key={Math.random()}
+                                    onPress={() => {
+                                        setSelectedTags(
+                                            selectedTags.filter(
+                                                (select) => select !== tag
+                                            )
+                                        );
+                                    }}
+                                >
+                                    <View
+                                        style={[
+                                            styles.selected,
+                                            darkMode && { borderColor: "#fff" },
+                                        ]}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.tagName,
+                                                darkMode && { color: "#fff" },
+                                            ]}
+                                        >
+                                            {tag}
+                                        </Text>
+                                        <Ionicons
+                                            name="close-outline"
+                                            size={16}
+                                            color={
+                                                darkMode ? "#fff" : "#4703d1"
+                                            }
+                                        />
+                                    </View>
+                                </Pressable>
+                            );
+                        })}
+                    </View>
+                )}
                 <View>
-                    <Text style={styles.title}>Your Blogs</Text>
+                    <Text style={[styles.title, themeBasedColors]}>
+                        Your Blogs
+                    </Text>
                     {data.length > 0 && (
                         <View style={styles.feeds}>
                             <FlatList
@@ -185,21 +238,21 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins",
     },
     selectedTagsWrapper: {
-        flexDirection: 'row',
+        flexDirection: "row",
         gap: 10,
         marginBottom: 20,
     },
     selected: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
         gap: 5,
         borderWidth: 1,
-        borderColor: '#4703d1',
+        borderColor: "#4703d1",
         padding: 5,
     },
     tagName: {
         fontSize: 12,
-        color: '#4703d1'
-    }
+        color: "#4703d1",
+    },
 });

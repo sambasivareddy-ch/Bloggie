@@ -3,9 +3,12 @@ import { useContext } from "react";
 
 import FeedCard from "../components/FeedCard";
 import { DraftsContext } from "../context/draftsContext";
+import { ThemeContext } from "../context/themeContext";
+import { lightThemeColor, darkThemeColor } from "../utils/themeColors";
 
 const Drafts = ({ navigation }) => {
     const { drafts } = useContext(DraftsContext);
+    const { darkMode } = useContext(ThemeContext);
 
     const openEditorHandler = (draft) => {
         navigation.navigate("Editor", {
@@ -14,13 +17,17 @@ const Drafts = ({ navigation }) => {
             blogTags: draft.tags,
             draftId: draft.draftId,
             docId: draft.id,
-        })
-    }
+        });
+    };
+
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, themeBasedColors]}>
             <View style={styles.drafts}>
-                <Text style={styles.title}>Your Drafts</Text>
+                <Text style={[styles.title, darkMode && { color: "#fff" }]}>
+                    Your Drafts
+                </Text>
                 {drafts && drafts.length > 0 && (
                     <View>
                         <FlatList
@@ -33,7 +40,9 @@ const Drafts = ({ navigation }) => {
                                     title={item.title}
                                     tags={item.tags}
                                     date={item.date}
-                                    onPress={() => {openEditorHandler(item)}}
+                                    onPress={() => {
+                                        openEditorHandler(item);
+                                    }}
                                     tagPressHandler={() => {}}
                                 />
                             )}
@@ -41,7 +50,7 @@ const Drafts = ({ navigation }) => {
                     </View>
                 )}
                 {drafts && drafts.length === 0 && (
-                    <Text>
+                    <Text style={darkMode && { color: "#fff" }}>
                         You don't have any drafts yet. Start writing something!
                     </Text>
                 )}
@@ -59,12 +68,12 @@ const styles = StyleSheet.create({
     },
     drafts: {
         padding: 20,
-        width: '100%',
+        width: "100%",
     },
     title: {
-        fontFamily: 'Raleway',
-        fontWeight: 'bold',
+        fontFamily: "Raleway",
+        fontWeight: "bold",
         fontSize: 24,
         marginBottom: 15,
-    }
+    },
 });

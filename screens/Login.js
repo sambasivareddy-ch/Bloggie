@@ -13,10 +13,12 @@ import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
 import Loading from "../components/Loading";
 import PressableText from "../components/PressableText";
-import { loginIntoAccount, changeAccountPassword } from "../utils/request";
+import { loginIntoAccount } from "../utils/request";
 import { AuthContext } from "../context/authContext";
+import { ThemeContext } from "../context/themeContext";
+import { darkThemeColor, lightThemeColor } from "../utils/themeColors";
 
-const Login = ({ route, navigation }) => {
+const Login = ({ navigation }) => {
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -24,12 +26,13 @@ const Login = ({ route, navigation }) => {
     const [showPassword, setShowPasswords] = useState(false);
 
     const { login } = useContext(AuthContext);
+    const { darkMode } = useContext(ThemeContext);
 
     useEffect(() => {
         setTimeout(() => {
             setHasError(false);
-        }, 3000)
-    }, [hasError])
+        }, 3000);
+    }, [hasError]);
 
     const createAccountChangeHandler = () => {
         navigation.navigate("SignUp");
@@ -37,7 +40,7 @@ const Login = ({ route, navigation }) => {
 
     const passwordChangeHandler = () => {
         navigation.navigate("ResetPassword");
-    }
+    };
 
     const formSubmitHandler = async () => {
         if (!userEmail || !userPassword) {
@@ -50,13 +53,15 @@ const Login = ({ route, navigation }) => {
             const info = await loginIntoAccount(userEmail, userPassword);
 
             if (info && info?.token && info?.email && info?.uid) {
-                login(info.token, info.email, info.uid)
+                login(info.token, info.email, info.uid);
             }
         } catch (err) {
             setHasError(true);
             setIsLoading(false);
         }
     };
+
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
 
     let content = <Loading text={"Login into account...."} />;
 
@@ -65,12 +70,19 @@ const Login = ({ route, navigation }) => {
             <KeyboardAvoidingView
                 enabled={true}
                 behavior="padding"
-                style={styles.view}
+                style={[styles.view, themeBasedColors]}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.signInContainer}>
                         <View style={styles.formContainer}>
-                            <Text style={styles.formTitle}>Login</Text>
+                            <Text
+                                style={[
+                                    styles.formTitle,
+                                    darkMode && { color: "#fff" },
+                                ]}
+                            >
+                                Login
+                            </Text>
                             <InputField
                                 placeholder={"Email Address"}
                                 keyboardType={"email-address"}
@@ -87,14 +99,34 @@ const Login = ({ route, navigation }) => {
                                 value={userPassword}
                                 changeHandler={setUserPassword}
                             />
-                            {!showPassword && <PressableText text={"Show Password"} onPress={() => {setShowPasswords(true)}}/>}
-                            {showPassword && <PressableText text={"Hide Password"} onPress={() => {setShowPasswords(false)}}/>}
+                            {!showPassword && (
+                                <PressableText
+                                    color={darkMode ? "#fff" : "#000"}
+                                    text={"Show Password"}
+                                    onPress={() => {
+                                        setShowPasswords(true);
+                                    }}
+                                />
+                            )}
+                            {showPassword && (
+                                <PressableText
+                                    color={darkMode ? "#fff" : "#000"}
+                                    text={"Hide Password"}
+                                    onPress={() => {
+                                        setShowPasswords(false);
+                                    }}
+                                />
+                            )}
                             <AppButton
                                 text={"Login into Account"}
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
-                            {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
+                            {hasError && (
+                                <Text style={styles.errorMessage}>
+                                    Invalid Credentials
+                                </Text>
+                            )}
                             <AppButton
                                 text={"Forget Password?"}
                                 onPress={passwordChangeHandler}
@@ -112,9 +144,7 @@ const Login = ({ route, navigation }) => {
         );
     }
 
-    return <View style={styles.view}>
-        {content}
-    </View>;
+    return <View style={styles.view}>{content}</View>;
 };
 
 export default Login;
@@ -141,6 +171,6 @@ const styles = StyleSheet.create({
     errorMessage: {
         color: "#f44336",
         fontSize: 18,
-        fontFamily: 'Poppins'
-    }
+        fontFamily: "Poppins",
+    },
 });

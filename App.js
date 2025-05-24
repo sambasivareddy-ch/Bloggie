@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, SafeAreaView, Alert } from "react-native";
+import { StyleSheet, View, Alert } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
@@ -28,6 +28,7 @@ import {
     BiometricProvider,
 } from "./context/biometricContext";
 import { DraftsProvider } from "./context/draftsContext";
+import { ThemeContext, ThemeProvider } from "./context/themeContext";
 
 const fetchFonts = () => {
     return Font.loadAsync({
@@ -41,8 +42,22 @@ const StackNavigator = createNativeStackNavigator();
 const TabNavigator = createBottomTabNavigator();
 
 const TabsNav = () => {
+    const { darkMode } = useContext(ThemeContext);
+
     return (
-        <TabNavigator.Navigator>
+        <TabNavigator.Navigator
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: darkMode ? "#000" : "#fff",
+                    borderBottomWidth: darkMode ? 1 : 0,
+                    borderBottomColor: darkMode ? "#fff" : "#000",
+                },
+                tabBarStyle: {
+                    backgroundColor: darkMode ? "#000" : "#fff",
+                },
+                headerTintColor: darkMode ? "#fff" : "#000",
+            }}
+        >
             <TabNavigator.Screen
                 name="Feed"
                 component={Feed}
@@ -96,9 +111,17 @@ const TabsNav = () => {
 };
 
 const MainAppNav = () => {
+    const { darkMode } = useContext(ThemeContext);
+
     return (
         <StackNavigator.Navigator
             screenOptions={{
+                headerStyle: {
+                    backgroundColor: darkMode ? "#000" : "#fff",
+                    borderBottomWidth: darkMode ? 1 : 0,
+                    borderBottomColor: darkMode ? "#fff" : "#000",
+                },
+                headerTintColor: darkMode ? "#fff" : "#000",
                 headerBackButtonDisplayMode: "minimal",
             }}
         >
@@ -128,10 +151,18 @@ const MainAppNav = () => {
 };
 
 const StackNav = () => {
+    const { darkMode } = useContext(ThemeContext);
+
     return (
         <StackNavigator.Navigator
             screenOptions={{
                 headerBackButtonDisplayMode: "minimal",
+                headerStyle: {
+                    backgroundColor: darkMode ? "#000" : "#fff",
+                    borderBottomWidth: darkMode ? 1 : 0,
+                    borderBottomColor: darkMode ? "#fff" : "#000",
+                },
+                headerTintColor: darkMode ? "#fff" : "#000",
             }}
         >
             <StackNavigator.Screen
@@ -205,6 +236,19 @@ const AppNavigation = () => {
     return mainNav;
 };
 
+const MainNavigation = () => {
+    const { darkMode } = useContext(ThemeContext);
+
+    return (
+        <NavigationContainer>
+            <StatusBar style={darkMode ? "light" : "dark"} />
+            <View style={styles.container}>
+                <AppNavigation />
+            </View>
+        </NavigationContainer>
+    );
+};
+
 export default function App() {
     const [fontsLoaded] = Font.useFonts({
         Poppins: require("./assets/fonts/Poppins-Regular.ttf"),
@@ -217,16 +261,13 @@ export default function App() {
     }
 
     return (
-        <BiometricProvider>
-            <AuthProvider>
-                <NavigationContainer>
-                    <StatusBar style="dark" />
-                    <View style={styles.container}>
-                        <AppNavigation />
-                    </View>
-                </NavigationContainer>
-            </AuthProvider>
-        </BiometricProvider>
+        <ThemeProvider>
+            <BiometricProvider>
+                <AuthProvider>
+                    <MainNavigation />
+                </AuthProvider>
+            </BiometricProvider>
+        </ThemeProvider>
     );
 }
 

@@ -12,22 +12,29 @@ import { useState, useContext, useEffect } from "react";
 import InputField from "../components/InputField";
 import AppButton from "../components/AppButton";
 import Loading from "../components/Loading";
-import { changeAccountEmail, changeAccountPassword, resetPasswordWithEmail } from "../utils/request";
+import {
+    changeAccountEmail,
+    changeAccountPassword,
+    resetPasswordWithEmail,
+} from "../utils/request";
 
-import { AuthContext } from '../context/authContext';
+import { AuthContext } from "../context/authContext";
+import { ThemeContext, ThemeProvider } from "../context/themeContext";
+import { darkThemeColor, lightThemeColor } from "../utils/themeColors";
 
-export const ChangePassword = ({navigation}) => {
+export const ChangePassword = ({ navigation }) => {
     const [userPassword, setUserPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
 
     const { authState, login } = useContext(AuthContext);
+    const { darkMode } = useContext(ThemeContext);
 
     useEffect(() => {
         setTimeout(() => {
             setHasError(false);
-        }, 3000)
-    }, [hasError])
+        }, 3000);
+    }, [hasError]);
 
     const formSubmitHandler = async () => {
         if (!userPassword) {
@@ -37,17 +44,22 @@ export const ChangePassword = ({navigation}) => {
 
         try {
             setIsLoading(true);
-            const info = await changeAccountPassword(userPassword, authState.authToken);
+            const info = await changeAccountPassword(
+                userPassword,
+                authState.authToken
+            );
 
             if (info && info?.token && info?.email && info?.uid) {
-                login(info.token, info.email, info.uid)
-                navigation.navigate('Main');
+                login(info.token, info.email, info.uid);
+                navigation.navigate("Main");
             }
         } catch (err) {
             setHasError(true);
             setIsLoading(false);
         }
     };
+
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
 
     let content = <Loading text={"Updating the password...."} />;
 
@@ -59,9 +71,16 @@ export const ChangePassword = ({navigation}) => {
                 style={styles.view}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View style={styles.signInContainer}>
+                    <View style={[styles.signInContainer, themeBasedColors]}>
                         <View style={styles.formContainer}>
-                            <Text style={styles.formTitle}>Change Password</Text>
+                            <Text
+                                style={[
+                                    styles.formTitle,
+                                    darkMode && { color: "#fff" },
+                                ]}
+                            >
+                                Change Password
+                            </Text>
                             <InputField
                                 placeholder={"New Password"}
                                 keyboardType={"default"}
@@ -75,7 +94,16 @@ export const ChangePassword = ({navigation}) => {
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
-                            {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
+                            {hasError && (
+                                <Text
+                                    style={[
+                                        styles.errorMessage,
+                                        darkMode && { color: "#fff" },
+                                    ]}
+                                >
+                                    Invalid Credentials
+                                </Text>
+                            )}
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -83,9 +111,7 @@ export const ChangePassword = ({navigation}) => {
         );
     }
 
-    return <View style={styles.view}>
-        {content}
-    </View>;
+    return <View style={styles.view}>{content}</View>;
 };
 
 export const ChangeEmail = ({ navigation }) => {
@@ -94,12 +120,13 @@ export const ChangeEmail = ({ navigation }) => {
     const [hasError, setHasError] = useState(false);
 
     const { authState, login } = useContext(AuthContext);
+    const { darkMode } = useContext(ThemeContext);
 
     useEffect(() => {
         setTimeout(() => {
             setHasError(false);
-        }, 3000)
-    }, [hasError])
+        }, 3000);
+    }, [hasError]);
 
     const formSubmitHandler = async () => {
         if (!userEmail) {
@@ -109,10 +136,13 @@ export const ChangeEmail = ({ navigation }) => {
 
         try {
             setIsLoading(true);
-            const info = await changeAccountEmail(userEmail, authState.authToken);
+            const info = await changeAccountEmail(
+                userEmail,
+                authState.authToken
+            );
             if (info && info?.token && info?.email && info?.uid) {
-                login(info.token, info.email, info.uid)
-                navigation.navigate('Main');
+                login(info.token, info.email, info.uid);
+                navigation.navigate("Main");
             }
         } catch (err) {
             setHasError(true);
@@ -127,12 +157,19 @@ export const ChangeEmail = ({ navigation }) => {
             <KeyboardAvoidingView
                 enabled={true}
                 behavior="padding"
-                style={styles.view}
+                style={[styles.view, darkMode && { backgroundColor: "#000" }]}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.signInContainer}>
                         <View style={styles.formContainer}>
-                            <Text style={styles.formTitle}>Change Email</Text>
+                            <Text
+                                style={[
+                                    styles.formTitle,
+                                    darkMode && { color: "#fff" },
+                                ]}
+                            >
+                                Change Email
+                            </Text>
                             <InputField
                                 placeholder={"Email Address"}
                                 keyboardType={"email-address"}
@@ -146,7 +183,16 @@ export const ChangeEmail = ({ navigation }) => {
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
-                            {hasError && <Text style={styles.errorMessage}>Invalid Credentials</Text>}
+                            {hasError && (
+                                <Text
+                                    style={[
+                                        styles.errorMessage,
+                                        darkMode && { color: "#fff" },
+                                    ]}
+                                >
+                                    Invalid Credentials
+                                </Text>
+                            )}
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -154,27 +200,29 @@ export const ChangeEmail = ({ navigation }) => {
         );
     }
 
-    return <View style={styles.view}>
-        {content}
-    </View>;
+    return <View style={styles.view}>{content}</View>;
 };
 
-export const ResetPasswordWithEmail = ({navigation}) => {
-    const [userEmail, setUserEmail] = useState('');
+export const ResetPasswordWithEmail = ({ navigation }) => {
+    const [userEmail, setUserEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
 
     const { authState, login } = useContext(AuthContext);
+    const { darkMode } = useContext(ThemeContext);
 
     useEffect(() => {
         setTimeout(() => {
             setHasError(false);
-        }, 3000)
-    }, [hasError])
+        }, 3000);
+    }, [hasError]);
 
     const formSubmitHandler = async () => {
         if (!userEmail) {
-            Alert.alert("Invalid Input", "Please enter all the input in all fields");
+            Alert.alert(
+                "Invalid Input",
+                "Please enter all the input in all fields"
+            );
             return;
         }
 
@@ -183,13 +231,15 @@ export const ResetPasswordWithEmail = ({navigation}) => {
             const info = await resetPasswordWithEmail(userEmail);
 
             if (info) {
-                navigation.navigate('Login');
+                navigation.navigate("Login");
             }
         } catch (err) {
             setHasError(true);
             setIsLoading(false);
         }
     };
+
+    const themeBasedColors = darkMode ? darkThemeColor : lightThemeColor;
 
     let content = <Loading text={"Sending the reset email...."} />;
 
@@ -198,12 +248,19 @@ export const ResetPasswordWithEmail = ({navigation}) => {
             <KeyboardAvoidingView
                 enabled={true}
                 behavior="padding"
-                style={styles.view}
+                style={[styles.view, themeBasedColors]}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.signInContainer}>
                         <View style={styles.formContainer}>
-                            <Text style={styles.formTitle}>Reset Password with Email</Text>
+                            <Text
+                                style={[
+                                    styles.formTitle,
+                                    darkMode && { color: "#fff" },
+                                ]}
+                            >
+                                Reset Password with Email
+                            </Text>
                             <InputField
                                 placeholder={"Email Address"}
                                 keyboardType={"email-address"}
@@ -216,7 +273,16 @@ export const ResetPasswordWithEmail = ({navigation}) => {
                                 onPress={formSubmitHandler}
                                 withBorder={true}
                             />
-                            {hasError && <Text style={styles.errorMessage}>Invalid Email Address</Text>}
+                            {hasError && (
+                                <Text
+                                    style={[
+                                        styles.errorMessage,
+                                        darkMode && { color: "#fff" },
+                                    ]}
+                                >
+                                    Invalid Email Address
+                                </Text>
+                            )}
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -224,9 +290,7 @@ export const ResetPasswordWithEmail = ({navigation}) => {
         );
     }
 
-    return <View style={styles.view}>
-        {content}
-    </View>;
+    return <View style={styles.view}>{content}</View>;
 };
 
 const styles = StyleSheet.create({
@@ -252,6 +316,6 @@ const styles = StyleSheet.create({
     errorMessage: {
         color: "#f44336",
         fontSize: 18,
-        fontFamily: 'Poppins'
-    }
+        fontFamily: "Poppins",
+    },
 });

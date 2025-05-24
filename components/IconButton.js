@@ -1,7 +1,11 @@
 import { View, StyleSheet, Pressable } from "react-native";
+import { useContext } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+import { ThemeContext } from "../context/themeContext";
+
 const IconButton = ({ iconName, onPress, size }) => {
+    const { darkMode } = useContext(ThemeContext);
     const pressHandler = () => {
         onPress();
     };
@@ -17,7 +21,11 @@ const IconButton = ({ iconName, onPress, size }) => {
             }
         >
             <View style={styles.icon}>
-                <Ionicons name={iconName} size={size}/>
+                <Ionicons
+                    name={iconName}
+                    size={size}
+                    color={darkMode ? "#fff" : "#000"}
+                />
             </View>
         </Pressable>
     );
@@ -27,6 +35,6 @@ export default IconButton;
 
 const styles = StyleSheet.create({
     icon: {
-        marginHorizontal: 5
-    }
+        marginHorizontal: 5,
+    },
 });

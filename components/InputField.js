@@ -1,4 +1,7 @@
-import { TextInput, View, StyleSheet } from "react-native";
+import { TextInput, StyleSheet } from "react-native";
+import { useContext } from "react";
+
+import { ThemeContext } from "../context/themeContext";
 
 const InputField = ({
     placeholder,
@@ -6,15 +9,17 @@ const InputField = ({
     isPassword,
     ariaLabel,
     changeHandler,
-    value
+    value,
 }) => {
+    const { darkMode } = useContext(ThemeContext);
+
     const inputChangeHandler = (enteredInput) => {
         changeHandler(enteredInput);
     };
     return (
         <TextInput
             placeholder={placeholder}
-            placeholderTextColor={"#000"}
+            placeholderTextColor={darkMode ? "#fff" : "#000"}
             keyboardType={keyboardType}
             secureTextEntry={isPassword}
             spellCheck={false}
@@ -22,7 +27,13 @@ const InputField = ({
             aria-label={ariaLabel}
             onChangeText={inputChangeHandler}
             value={value}
-            style={styles.input}
+            style={[
+                styles.input,
+                darkMode && {
+                    color: "#fff",
+                    borderColor: "#fff",
+                },
+            ]}
         />
     );
 };
@@ -32,10 +43,10 @@ export default InputField;
 const styles = StyleSheet.create({
     input: {
         padding: 15,
-        width: '100%',
+        width: "100%",
         borderWidth: 1,
-        borderColor: '#000',
-        borderRadius: 5, 
-        fontFamily: 'Poppins'
-    }
+        borderColor: "#000",
+        borderRadius: 5,
+        fontFamily: "Poppins",
+    },
 });

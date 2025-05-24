@@ -1,10 +1,18 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useContext } from "react";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 
+import { ThemeContext } from "../context/themeContext";
+import { darkThemeColor, lightThemeColor } from "../utils/themeColors";
+
 const Tag = ({ text, onPress }) => {
+    const { darkMode } = useContext(ThemeContext);
+
     const pressHandler = () => {
-        onPress(text)
-    }
+        onPress(text);
+    };
+
+    const themeBasedColors = darkMode ? lightThemeColor : darkThemeColor;
 
     return (
         <Pressable
@@ -16,9 +24,13 @@ const Tag = ({ text, onPress }) => {
                 }
             }
         >
-            <View style={styles.tag}>
-                <EvilIcons name="tag" size={16} color={"white"} />
-                <Text style={styles.tagText}>{text}</Text>
+            <View style={[styles.tag, themeBasedColors]}>
+                <EvilIcons
+                    name="tag"
+                    size={16}
+                    color={darkMode ? "#000" : "#fff"}
+                />
+                <Text style={[styles.tagText, themeBasedColors]}>{text}</Text>
             </View>
         </Pressable>
     );

@@ -45,7 +45,7 @@ export const DraftsProvider = ({ children }) => {
 
         let updatedDrafts;
         if (idx === -1) {
-            updatedDrafts = [{...blog, draftId: idCounter}, ...drafts];
+            updatedDrafts = [{ ...blog, draftId: idCounter }, ...drafts];
             setIdCounter(idCounter + 1);
         } else {
             updatedDrafts = [...drafts];
@@ -71,8 +71,10 @@ export const DraftsProvider = ({ children }) => {
     const deleteDraft = async (draftId) => {
         try {
             setDrafts((prevDrafts) => {
-                const updatedDrafts = prevDrafts.filter((blog) => blog.draftId !== draftId);
-    
+                const updatedDrafts = prevDrafts.filter(
+                    (blog) => blog.draftId !== draftId
+                );
+
                 // Save to AsyncStorage
                 AsyncStorage.setItem(
                     `drafts_${authState.uid}`,
@@ -80,10 +82,10 @@ export const DraftsProvider = ({ children }) => {
                 ).catch((err) => {
                     console.error("Error while saving updated drafts:", err);
                 });
-    
+
                 return updatedDrafts;
             });
-    
+
             return true;
         } catch (err) {
             console.error("Error while deleting draft:", err);
